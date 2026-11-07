@@ -1,0 +1,84 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x ./android/gradlew
+
+      - name: Build Android Debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Rename APK Output
+        run: |
+          mkdir -p release-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk release-output/AI-Alarm-Pro.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Alarm-Pro-APK
+          path: release-output/AI-Alarm-Pro.apk
+          retention-days: 30
+
+      - name: Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/heads/main')
+        with:
+          tag_name: v1.0.0
+          name: "AI Alarm Pro v1.0.0 (Android APK)"
+          body: |
+            ### ⏰ AI Alarm Pro - v1.0.0 Release
+
+            Download the attached **`AI-Alarm-Pro.apk`** directly to your Android device to install!
+
+            #### Features:
+            - 📱 Real, smooth, modern alarm clock interface.
+            - 🎙️ Set alarms via AI Voice commands (Urdu & English).
+            - ✍️ Smart natural language text scheduling (calculates flight buffers, prayer times, hydration intervals).
+            - 📄 Upload schedule/timetable images with automatic alarm generation.
+            - 🔊 6 authentic synthesized alarm ringtones and AI morning voice briefing.
+            - 🧮 Math Wake-Up Challenge mission.
+          files: release-output/AI-Alarm-Pro.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

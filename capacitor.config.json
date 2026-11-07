@@ -1,0 +1,13 @@
+{
+  "appId": "com.aialarm.smartwake",
+  "appName": "AI Alarm Pro",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#090d16"
+  }
+}
