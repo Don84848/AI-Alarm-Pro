@@ -44,14 +44,14 @@ export const ClockTab: React.FC = () => {
     <div className="px-6 py-4 space-y-6 animate-fade-in select-none">
       {/* Primary Local Hero Clock */}
       <div className="bg-white rounded-3xl p-6 border border-gray-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] text-center">
-        <span className="text-xs font-semibold text-blue-600 uppercase tracking-widest block mb-2">
+        <span className="text-xs font-semibold text-[#00B074] uppercase tracking-widest block mb-2">
           Local Time
         </span>
         <div className="flex items-baseline justify-center">
           <span className="text-5xl font-light text-gray-900 font-sans tracking-tight">
             {localTimeStr}
           </span>
-          <span className="text-sm font-mono font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full ml-2">
+          <span className="text-sm font-mono font-medium text-[#00B074] bg-emerald-50 px-2 py-0.5 rounded-full ml-2">
             :{localSeconds}
           </span>
         </div>
@@ -64,7 +64,7 @@ export const ClockTab: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-3 px-1">
           <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-            <Globe className="w-4 h-4 text-blue-600" />
+            <Globe className="w-4 h-4 text-[#00B074]" />
             World Clocks
           </h2>
         </div>

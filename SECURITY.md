@@ -22,5 +22,5 @@ We take the security of **AI Alarm Pro** seriously. If you believe you have foun
 ---
 
 ## 🛡️ User Privacy & API Keys
-* **Client-Side Privacy:** Google Gemini API keys entered by users are stored strictly on-device in `localStorage`.
-* **Zero Telemetry / Zero Secret Leakage:** No keys or personal scheduling data are ever transmitted to any third-party server other than direct client-to-Google API calls.
+* **Client-Side Privacy:** AI API keys entered by users are stored strictly on-device in `localStorage`.
+* **Zero Telemetry / Zero Secret Leakage:** No keys or personal scheduling data are ever transmitted to any third-party analytics or intermediary server.

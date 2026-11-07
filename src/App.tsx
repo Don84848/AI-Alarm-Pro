@@ -6,19 +6,19 @@ import { processAiAlarmPrompt } from './utils/aiEngine';
 import { audioEngine } from './utils/audio';
 
 import { Header } from './components/Header';
-import { LiveClockHero } from './components/LiveClockHero';
+import { AnalogClockHero } from './components/AnalogClockHero';
 import { AlarmCard } from './components/AlarmCard';
 import { ClockTab } from './components/ClockTab';
 import { TimerTab } from './components/TimerTab';
 import { StopwatchTab } from './components/StopwatchTab';
-import { AiChatSheet } from './components/AiChatSheet';
+import { SettingsScreen } from './components/SettingsScreen';
 import { AddEditAlarmModal } from './components/AddEditAlarmModal';
+import { AiChatSheet } from './components/AiChatSheet';
 import { AlarmRingingScreen } from './components/AlarmRingingScreen';
-import { ProfileModal } from './components/ProfileModal';
 import { VoiceRecorderModal } from './components/VoiceRecorderModal';
 import { ScheduleUploadModal } from './components/ScheduleUploadModal';
 
-import { Plus, Bell, Clock, Hourglass, Timer as StopwatchIcon, Mic, Upload, Sparkles } from 'lucide-react';
+import { Plus, Bell, Clock, Hourglass, Timer as StopwatchIcon } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [alarms, setAlarms] = useState<Alarm[]>(() => loadAlarms());
@@ -30,10 +30,10 @@ export const App: React.FC = () => {
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingAlarm, setEditingAlarm] = useState<Alarm | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [ringingAlarm, setRingingAlarm] = useState<Alarm | null>(null);
 
   // Sync state to LocalStorage
@@ -157,47 +157,36 @@ export const App: React.FC = () => {
   const getTabTitle = () => {
     switch (activeTab) {
       case 'alarm': return 'Alarm';
-      case 'clock': return 'World Clock';
+      case 'clock': return 'Clock';
       case 'timer': return 'Timer';
       case 'stopwatch': return 'Stopwatch';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100/60 text-gray-900 flex justify-center selection:bg-blue-600 selection:text-white">
-      {/* Mobile container - Pure White Light Theme */}
-      <div className="w-full max-w-md min-h-screen flex flex-col bg-white border-x border-gray-200/80 shadow-xl relative pb-36">
+    <div className="min-h-screen bg-gray-100 flex justify-center selection:bg-[#00B074] selection:text-white">
+      {/* Mobile container - Pure White Stock Look */}
+      <div className="w-full max-w-md min-h-screen flex flex-col bg-white border-x border-gray-200/80 shadow-md relative pb-16">
         
-        {/* Top Header with Title and Small Settings Gear */}
+        {/* Top Header with title and green settings nut icon */}
         <Header
           title={getTabTitle()}
-          profile={profile}
-          onOpenSettings={() => setIsProfileModalOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenAi={() => setIsAiChatOpen(true)}
         />
 
-        {/* TAB 1: ALARM VIEW */}
+        {/* TAB 1: ALARM VIEW (Exact Match to Screenshot 1) */}
         {activeTab === 'alarm' && (
           <div className="flex-1 flex flex-col">
-            {/* Live Center Clock in Hero */}
-            <LiveClockHero alarms={alarms} />
+            {/* Real Analog Clock Face Hero */}
+            <AnalogClockHero />
 
-            {/* Alarms List */}
-            <div className="px-6 pt-1 pb-16 space-y-3 flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                  Your Alarms ({alarms.length})
-                </span>
-              </div>
-
+            {/* Alarms Clean List */}
+            <div className="px-6 py-2 flex-1 pb-24">
               {alarms.length === 0 ? (
-                <div className="text-center py-12 px-6 rounded-3xl bg-gray-50 border border-dashed border-gray-200 my-2">
-                  <div className="w-12 h-12 rounded-full bg-white shadow-xs text-gray-400 flex items-center justify-center mx-auto mb-3 border border-gray-200">
-                    <Bell className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-base font-semibold text-gray-800">No alarms set</p>
-                  <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                    Tap the round AI button in the center to create smart routines, or tap the + button to set one manually.
-                  </p>
+                <div className="text-center py-8 px-4 text-gray-400 text-sm">
+                  <p className="font-normal text-gray-500">No alarms</p>
+                  <p className="text-xs text-gray-400 mt-1">Tap + to add an alarm</p>
                 </div>
               ) : (
                 alarms.map(alarm => (
@@ -218,57 +207,31 @@ export const App: React.FC = () => {
               )}
             </div>
 
-            {/* Centered Circular AI Button & Side Action Dock */}
-            <div className="fixed bottom-20 left-0 right-0 max-w-md mx-auto px-8 flex items-center justify-between z-20 pointer-events-none">
-              {/* Left Action: Voice / Upload Quick Button */}
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="pointer-events-auto w-12 h-12 rounded-full bg-white border border-gray-200/90 text-gray-700 shadow-md flex items-center justify-center hover:bg-gray-50 active:scale-95 transition"
-                title="Upload schedule / timetable image"
-              >
-                <Upload className="w-5 h-5 text-gray-700" />
-              </button>
-
-              {/* Center: The Round Circular AI Button (Gemini Sparkle) */}
-              <button
-                onClick={() => setIsAiChatOpen(true)}
-                className="pointer-events-auto w-16 h-16 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-blue-500/35 flex items-center justify-center hover:scale-105 active:scale-95 transition"
-                title="Ask Gemini AI to set alarm"
-              >
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 2C12 7.52 7.52 12 2 12C7.52 12 12 16.48 12 22C12 16.48 16.48 12 22 12C16.48 12 12 7.52 12 2Z"
-                    fill="white"
-                  />
-                </svg>
-              </button>
-
-              {/* Right Action: Plus (+) Manual Time Set Button */}
-              <button
-                onClick={() => {
-                  setEditingAlarm(null);
-                  setIsAddModalOpen(true);
-                }}
-                className="pointer-events-auto w-12 h-12 rounded-full bg-blue-600 text-white shadow-md flex items-center justify-center hover:bg-blue-700 active:scale-95 transition"
-                title="Set alarm manually (smooth scroll wheel)"
-              >
-                <Plus className="w-6 h-6 stroke-[2.5]" />
-              </button>
-            </div>
+            {/* Green Circular FAB (+) (Screenshot 1: Centered green plus button) */}
+            <button
+              onClick={() => {
+                setEditingAlarm(null);
+                setIsAddModalOpen(true);
+              }}
+              className="fixed bottom-20 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-[#00B074] hover:bg-[#009E67] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center transition-all duration-150 active:scale-95 z-20"
+              title="Add alarm"
+            >
+              <Plus className="w-7 h-7 stroke-[2.5]" />
+            </button>
           </div>
         )}
 
-        {/* TAB 2: WORLD CLOCK */}
+        {/* TAB 2: CLOCK VIEW */}
         {activeTab === 'clock' && <ClockTab />}
 
-        {/* TAB 3: TIMER */}
+        {/* TAB 3: TIMER VIEW (Exact Match to Screenshot 2) */}
         {activeTab === 'timer' && <TimerTab />}
 
-        {/* TAB 4: STOPWATCH */}
+        {/* TAB 4: STOPWATCH VIEW (Exact Match to Screenshot 4) */}
         {activeTab === 'stopwatch' && <StopwatchTab />}
 
-        {/* Stock Bottom Navigation Bar (4 Menus: Alarm, Clock, Timer, Stopwatch) */}
-        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-gray-200 h-16 px-4 flex items-center justify-around z-30 select-none">
+        {/* Bottom Navigation Bar (Screenshot 1/2/4: Exactly 4 Stock Menus, Clean Green Active Color) */}
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 h-16 px-4 flex items-center justify-around z-30 select-none">
           {[
             { id: 'alarm', label: 'Alarm', icon: Bell },
             { id: 'clock', label: 'Clock', icon: Clock },
@@ -281,20 +244,18 @@ export const App: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className="flex flex-col items-center gap-1 group transition"
+                className="flex flex-col items-center gap-0.5 group transition w-16"
               >
                 <div
-                  className={`px-4 py-1 rounded-full transition-all duration-200 ${
-                    isSelected
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-400 group-hover:text-gray-600'
+                  className={`transition-colors duration-150 ${
+                    isSelected ? 'text-[#00B074]' : 'text-gray-400 group-hover:text-gray-600'
                   }`}
                 >
                   <Icon className="w-5 h-5 stroke-[2]" />
                 </div>
                 <span
-                  className={`text-[11px] transition ${
-                    isSelected ? 'text-blue-600 font-semibold' : 'text-gray-400 font-medium'
+                  className={`text-[11px] transition-colors duration-150 ${
+                    isSelected ? 'text-[#00B074] font-medium' : 'text-gray-400 font-normal'
                   }`}
                 >
                   {tab.label}
@@ -304,17 +265,16 @@ export const App: React.FC = () => {
           })}
         </nav>
 
-        {/* Expandable Gemini AI Conversational Assistant Sheet */}
-        <AiChatSheet
-          profile={profile}
-          isOpen={isAiChatOpen}
-          onClose={() => setIsAiChatOpen(false)}
-          onAddAlarms={handleAddMultipleAlarms}
-          onOpenUploadModal={() => setIsUploadModalOpen(true)}
-          onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
-        />
+        {/* Full Settings Screen (Screenshot 3) */}
+        {isSettingsOpen && (
+          <SettingsScreen
+            profile={profile}
+            onSaveProfile={setProfile}
+            onBack={() => setIsSettingsOpen(false)}
+          />
+        )}
 
-        {/* Manual Add/Edit Alarm Modal (Smooth Finger-Scroll Drum Picker) */}
+        {/* Add/Edit Alarm Modal (Smooth Finger-Scroll Drum Picker) */}
         {isAddModalOpen && (
           <AddEditAlarmModal
             alarm={editingAlarm}
@@ -323,17 +283,19 @@ export const App: React.FC = () => {
               setIsAddModalOpen(false);
               setEditingAlarm(null);
             }}
+            onOpenAiChat={() => setIsAiChatOpen(true)}
           />
         )}
 
-        {/* Settings Modal (Gemini API Key, Model, Sound Volume) */}
-        {isProfileModalOpen && (
-          <ProfileModal
-            profile={profile}
-            onSaveProfile={setProfile}
-            onClose={() => setIsProfileModalOpen(false)}
-          />
-        )}
+        {/* AI Assistant Sheet */}
+        <AiChatSheet
+          profile={profile}
+          isOpen={isAiChatOpen}
+          onClose={() => setIsAiChatOpen(false)}
+          onAddAlarms={handleAddMultipleAlarms}
+          onOpenUploadModal={() => setIsUploadModalOpen(true)}
+          onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+        />
 
         {/* Voice Recorder Modal */}
         {isVoiceModalOpen && (

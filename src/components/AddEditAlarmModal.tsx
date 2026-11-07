@@ -3,18 +3,20 @@ import { Alarm, AlarmSound, MissionType } from '../types';
 import { DAY_NAMES, formatTime24 } from '../utils/timeUtils';
 import { audioEngine } from '../utils/audio';
 import { SmoothTimePicker } from './SmoothTimePicker';
-import { X, Volume2, Check } from 'lucide-react';
+import { Volume2, Check, Sparkles, Mic, Upload } from 'lucide-react';
 
 interface AddEditAlarmModalProps {
   alarm?: Alarm | null;
   onSave: (alarm: Alarm) => void;
   onClose: () => void;
+  onOpenAiChat?: () => void;
 }
 
 export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   alarm,
   onSave,
   onClose,
+  onOpenAiChat,
 }) => {
   const [hours, setHours] = useState(alarm ? alarm.time.split(':')[0] : '07');
   const [minutes, setMinutes] = useState(alarm ? alarm.time.split(':')[1] : '00');
@@ -22,7 +24,7 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   const [label, setLabel] = useState(alarm ? alarm.label : '');
   const [days, setDays] = useState<number[]>(alarm?.days || [1, 2, 3, 4, 5]);
   const [sound, setSound] = useState<AlarmSound>(alarm?.sound || 'gentle');
-  const [snoozeMinutes, setSnoozeMinutes] = useState<number>(alarm?.snoozeMinutes || 5);
+  const [snoozeMinutes, setSnoozeMinutes] = useState<number>(alarm?.snoozeMinutes || 10);
   const [mission, setMission] = useState<MissionType>(alarm?.mission || 'none');
 
   const toggleDay = (dayIndex: number) => {
@@ -34,12 +36,11 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   };
 
   const SOUND_OPTIONS: { id: AlarmSound; label: string }[] = [
-    { id: 'gentle', label: 'Gentle Sunrise' },
+    { id: 'gentle', label: 'Gentle Bell' },
     { id: 'radar', label: 'Classic Radar' },
-    { id: 'cyber', label: 'Cyber Pulse' },
-    { id: 'zen', label: 'Tibetan Zen Bowl' },
-    { id: 'rooster', label: 'High Energy Fanfare' },
-    { id: 'briefing', label: 'AI Voice Briefing' },
+    { id: 'zen', label: 'Zen Chime' },
+    { id: 'rooster', label: 'Upbeat Fanfare' },
+    { id: 'briefing', label: 'Morning Voice' },
   ];
 
   const handleTestTone = (soundId: AlarmSound) => {
@@ -72,8 +73,8 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
-      <div className="w-full max-w-md bg-white border border-gray-200 rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
+      <div className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-gray-100 flex items-center justify-between z-10">
           <button
@@ -83,19 +84,44 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
             Cancel
           </button>
           <h3 className="text-base font-semibold text-gray-900">
-            {alarm ? 'Edit Alarm' : 'Set Alarm'}
+            {alarm ? 'Edit Alarm' : 'New Alarm'}
           </h3>
           <button
             onClick={handleSave}
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition"
+            className="text-sm font-semibold text-[#00B074] hover:text-[#008759] transition"
           >
-            Save
+            Done
           </button>
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Quick AI Trigger Banner */}
+          {onOpenAiChat && !alarm && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenAiChat();
+              }}
+              className="w-full p-3 rounded-2xl bg-emerald-50/70 border border-emerald-100 hover:bg-emerald-100/60 flex items-center justify-between transition group"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#00B074] text-white flex items-center justify-center">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-semibold text-gray-900">Ask AI to set this alarm</div>
+                  <div className="text-[11px] text-gray-500">e.g. "Flight at 4:30 AM with buffer" or voice</div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-[#00B074] group-hover:translate-x-0.5 transition-transform">
+                Try →
+              </span>
+            </button>
+          )}
+
           {/* Smooth Scroll Wheel Time Picker (Finger scroll drum) */}
-          <div className="bg-gray-50/70 rounded-3xl p-4 border border-gray-200/80 shadow-inner">
+          <div className="bg-gray-50/70 rounded-2xl p-4 border border-gray-200/80">
             <SmoothTimePicker
               hours={hours}
               minutes={minutes}
@@ -121,9 +147,9 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
                     key={index}
                     type="button"
                     onClick={() => toggleDay(index)}
-                    className={`w-10 h-10 rounded-full text-xs font-semibold flex items-center justify-center transition active:scale-95 ${
+                    className={`w-9 h-9 rounded-full text-xs font-semibold flex items-center justify-center transition active:scale-95 ${
                       isSelected
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-[#00B074] text-white shadow-xs'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -134,7 +160,7 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
             </div>
           </div>
 
-          {/* Alarm Label */}
+          {/* Label */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
               Label
@@ -143,12 +169,12 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="e.g. Work, Gym, Morning routine"
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+              placeholder="Alarm name (e.g. Work, Gym)"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#00B074]"
             />
           </div>
 
-          {/* Alarm Sound Picker */}
+          {/* Ringtone Sound */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
               Alarm Sound
@@ -162,65 +188,34 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
                     setSound(opt.id);
                     handleTestTone(opt.id);
                   }}
-                  className={`flex items-center justify-between p-3 rounded-2xl text-xs font-medium border text-left transition ${
+                  className={`flex items-center justify-between p-3 rounded-xl text-xs font-medium border text-left transition ${
                     sound === opt.id
-                      ? 'border-blue-500 bg-blue-50/80 text-blue-700 font-semibold'
+                      ? 'border-[#00B074] bg-emerald-50 text-[#008759] font-semibold'
                       : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Volume2 className="w-4 h-4 shrink-0 text-blue-500" />
+                  <div className="flex items-center gap-2 truncate">
+                    <Volume2 className="w-3.5 h-3.5 text-[#00B074] shrink-0" />
                     <span className="truncate">{opt.label}</span>
                   </div>
-                  {sound === opt.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                  {sound === opt.id && <Check className="w-3.5 h-3.5 text-[#00B074]" />}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Wake-up Mission */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Wake-Up Mission (To dismiss alarm)
-            </label>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setMission('none')}
-                className={`flex-1 py-2.5 px-3 rounded-2xl text-xs font-medium border text-center transition ${
-                  mission === 'none'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                None (Standard)
-              </button>
-              <button
-                type="button"
-                onClick={() => setMission('math')}
-                className={`flex-1 py-2.5 px-3 rounded-2xl text-xs font-medium border text-center transition ${
-                  mission === 'math'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                🧮 Math Problem
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Bottom Actions */}
+        {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex items-center gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 rounded-2xl text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition"
+            className="flex-1 py-3 rounded-xl text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-98 transition"
+            className="flex-1 py-3 rounded-xl text-sm font-semibold text-white bg-[#00B074] hover:bg-[#009E67] shadow-md shadow-emerald-500/20 active:scale-98 transition"
           >
             Save Alarm
           </button>

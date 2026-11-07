@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Alarm, UserProfile, ChatMessage } from '../types';
 import { processAiAlarmPrompt } from '../utils/aiEngine';
-import { Mic, ArrowUp, Upload, X, ChevronDown, Sparkles, Loader2, Bell } from 'lucide-react';
+import { Mic, ArrowUp, Upload, X, Sparkles, Loader2, Bell } from 'lucide-react';
 
 interface AiChatSheetProps {
   profile: UserProfile;
@@ -28,7 +28,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
     {
       id: 'welcome-1',
       sender: 'assistant',
-      text: "Hi! I'm your Gemini AI alarm assistant. Tell me your plans or when you need to wake up, and I will research, calculate buffers, and set your alarms automatically.",
+      text: "Hi! I'm your smart AI assistant. Tell me when you need to wake up or what your schedule is, and I will calculate the buffers and set your alarms automatically.",
       timestamp: 'Just now',
     }
   ]);
@@ -105,7 +105,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
         {
           id: `error-${Date.now()}`,
           sender: 'assistant',
-          text: "I couldn't process that schedule right now. Please ensure your Gemini API key is configured in Settings.",
+          text: "I couldn't process that schedule right now. Please check your AI API key in Settings.",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         }
       ]);
@@ -117,7 +117,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex flex-col justify-end select-none animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex flex-col justify-end select-none animate-fade-in">
       <div className="w-full max-w-md mx-auto bg-white border-t border-gray-200 rounded-t-3xl h-[85vh] flex flex-col shadow-2xl relative overflow-hidden">
         {/* Grab Handle */}
         <div
@@ -130,26 +130,13 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
         {/* Sheet Header */}
         <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 2C12 7.52 7.52 12 2 12C7.52 12 12 16.48 12 22C12 16.48 16.48 12 22 12C16.48 12 12 7.52 12 2Z"
-                  fill="url(#gemini-light-grad)"
-                />
-                <defs>
-                  <linearGradient id="gemini-light-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4285F4" />
-                    <stop offset="0.33" stopColor="#9B72CB" />
-                    <stop offset="0.66" stopColor="#D96570" />
-                    <stop offset="1" stopColor="#F4B400" />
-                  </linearGradient>
-                </defs>
-              </svg>
+            <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#00B074] flex items-center justify-center">
+              <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Gemini AI Assistant</h3>
-              <span className="text-[11px] text-blue-600 font-medium block">
-                {profile.selectedModel || 'Gemini 2.5 Flash'}
+              <h3 className="text-sm font-semibold text-gray-900">AI Assistant</h3>
+              <span className="text-[11px] text-[#00B074] font-medium block">
+                Smart Routine & Alarm Setup
               </span>
             </div>
           </div>
@@ -173,7 +160,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
               <div
                 className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-xs ${
                   msg.sender === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-xs'
+                    ? 'bg-[#00B074] text-white rounded-br-xs'
                     : 'bg-white text-gray-900 border border-gray-200/80 rounded-bl-xs'
                 }`}
               >
@@ -188,7 +175,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
                         className="p-3 rounded-xl bg-gray-50 flex items-center justify-between border border-gray-200"
                       >
                         <div className="flex items-center gap-2.5">
-                          <Bell className="w-4 h-4 text-blue-600" />
+                          <Bell className="w-4 h-4 text-[#00B074]" />
                           <div>
                             <div className="text-sm font-semibold text-gray-900">
                               {alarm.time} <span className="text-xs font-normal text-gray-500">{alarm.period}</span>
@@ -198,7 +185,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
                             </div>
                           </div>
                         </div>
-                        <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                        <span className="text-[11px] font-semibold text-[#00B074] bg-emerald-50 px-2 py-0.5 rounded-full">
                           Active
                         </span>
                       </div>
@@ -213,9 +200,9 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
           ))}
 
           {isProcessing && (
-            <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-white border border-gray-200 max-w-[85%] text-xs text-blue-600 shadow-xs animate-pulse">
-              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-              <span>Gemini is researching and calculating optimal alarm buffers...</span>
+            <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-white border border-gray-200 max-w-[85%] text-xs text-[#00B074] shadow-xs animate-pulse">
+              <Loader2 className="w-4 h-4 animate-spin text-[#00B074]" />
+              <span>AI is calculating optimal schedules and alarm buffers...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -237,13 +224,13 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
 
         {/* Input Bar */}
         <div className="p-4 bg-white border-t border-gray-200">
-          <div className="flex items-center bg-gray-100 border border-gray-200 focus-within:border-blue-500 focus-within:bg-white rounded-full px-4 py-2 transition-all">
+          <div className="flex items-center bg-gray-100 border border-gray-200 focus-within:border-[#00B074] focus-within:bg-white rounded-full px-4 py-2 transition-all">
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Ask Gemini to set alarm..."
+              placeholder="Ask AI to set an alarm..."
               disabled={isProcessing}
               className="w-full bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
             />
@@ -277,7 +264,7 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
                 disabled={!inputText.trim() || isProcessing}
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition active:scale-95 ${
                   inputText.trim() && !isProcessing
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#00B074] text-white'
                     : 'text-gray-300 cursor-not-allowed'
                 }`}
               >

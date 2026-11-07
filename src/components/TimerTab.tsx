@@ -1,16 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Bell } from 'lucide-react';
+import { Play, Pause, RotateCcw, Plus, Presentation, Moon, Dumbbell, Bell } from 'lucide-react';
 import { audioEngine } from '../utils/audio';
 
+interface TimerPreset {
+  id: string;
+  label: string;
+  durationSecs: number;
+  icon: 'meeting' | 'sleep' | 'exercise' | 'custom';
+}
+
 export const TimerTab: React.FC = () => {
-  const [targetSeconds, setTargetSeconds] = useState(300); // 5 mins default
-  const [remainingSeconds, setRemainingSeconds] = useState(300);
+  const [targetSeconds, setTargetSeconds] = useState(0);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
 
-  // Wheel inputs when not running
-  const [inputH, setInputH] = useState(0);
-  const [inputM, setInputM] = useState(5);
-  const [inputS, setInputS] = useState(0);
+  // Drum picker values
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+
+  const [presets, setPresets] = useState<TimerPreset[]>([
+    { id: '1', label: 'Meeting', durationSecs: 20 * 60, icon: 'meeting' },
+    { id: '2', label: 'Sleep', durationSecs: 10 * 60, icon: 'sleep' },
+    { id: '3', label: 'Exercise', durationSecs: 15 * 60, icon: 'exercise' },
+  ]);
 
   const timerRef = useRef<any>(null);
 
@@ -37,7 +50,7 @@ export const TimerTab: React.FC = () => {
 
   const handleStart = () => {
     if (!isRunning && remainingSeconds === 0) {
-      const total = inputH * 3600 + inputM * 60 + inputS;
+      const total = hours * 3600 + minutes * 60 + seconds;
       if (total <= 0) return;
       setTargetSeconds(total);
       setRemainingSeconds(total);
@@ -51,158 +64,182 @@ export const TimerTab: React.FC = () => {
 
   const handleReset = () => {
     setIsRunning(false);
-    const total = inputH * 3600 + inputM * 60 + inputS;
-    setTargetSeconds(total || 300);
-    setRemainingSeconds(total || 300);
+    setRemainingSeconds(0);
+    setTargetSeconds(0);
   };
 
-  const handleApplyInputs = (h: number, m: number, s: number) => {
-    setInputH(h);
-    setInputM(m);
-    setInputS(s);
-    const total = h * 3600 + m * 60 + s;
-    setTargetSeconds(total);
-    setRemainingSeconds(total);
+  const handleApplyPreset = (preset: TimerPreset) => {
+    setIsRunning(false);
+    const h = Math.floor(preset.durationSecs / 3600);
+    const m = Math.floor((preset.durationSecs % 3600) / 60);
+    const s = preset.durationSecs % 60;
+    setHours(h);
+    setMinutes(m);
+    setSeconds(s);
+    setTargetSeconds(preset.durationSecs);
+    setRemainingSeconds(preset.durationSecs);
   };
 
-  // Format remaining seconds into HH:MM:SS
-  const formatTime = (secs: number) => {
+  const formatDigits = (val: number) => val.toString().padStart(2, '0');
+
+  const formatHMS = (secs: number) => {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
-    if (h > 0) {
-      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${formatDigits(h)}:${formatDigits(m)}:${formatDigits(s)}`;
   };
 
-  const progress = targetSeconds > 0 ? (remainingSeconds / targetSeconds) * 100 : 0;
+  const prevH = (hours - 1 + 24) % 24;
+  const nextH = (hours + 1) % 24;
+  const prevM = (minutes - 1 + 60) % 60;
+  const nextM = (minutes + 1) % 60;
+  const prevS = (seconds - 1 + 60) % 60;
+  const nextS = (seconds + 1) % 60;
 
   return (
-    <div className="px-6 py-6 flex flex-col items-center justify-between min-h-[65vh] select-none animate-fade-in">
-      {/* Central Visual Countdown Ring or Picker */}
-      {isRunning || remainingSeconds !== targetSeconds ? (
-        <div className="flex flex-col items-center justify-center my-auto">
-          {/* Circular Countdown Progress Ring */}
-          <div className="relative w-64 h-64 flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="44"
-                className="stroke-gray-100"
-                strokeWidth="5"
-                fill="none"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="44"
-                className="stroke-blue-600 transition-all duration-1000 ease-linear"
-                strokeWidth="5"
-                strokeDasharray="276.46"
-                strokeDashoffset={276.46 - (276.46 * progress) / 100}
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
-
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-5xl font-light text-gray-900 tracking-tight font-sans">
-                {formatTime(remainingSeconds)}
-              </span>
-              <span className="text-xs font-medium text-gray-400 mt-1">
-                {remainingSeconds === 0 ? 'Time Up!' : 'Remaining'}
-              </span>
-            </div>
-          </div>
+    <div className="px-6 py-4 flex flex-col justify-between flex-1 select-none animate-fade-in pb-28">
+      {/* 1. Timer Drum Display (Exact match to Screenshot 2) */}
+      {isRunning || remainingSeconds > 0 ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <span className="text-6xl font-light text-gray-900 font-sans tracking-tight">
+            {formatHMS(remainingSeconds)}
+          </span>
+          <span className="text-xs text-gray-400 mt-2 font-medium">
+            {remainingSeconds === 0 ? 'Timer Expired' : 'Remaining Time'}
+          </span>
         </div>
       ) : (
-        <div className="w-full bg-white rounded-3xl p-6 border border-gray-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] my-auto">
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-center mb-4">
-            Set Timer Duration
-          </div>
-          <div className="flex items-center justify-center gap-4 py-4">
-            {/* Hours */}
-            <div className="flex flex-col items-center">
-              <input
-                type="number"
-                min="0"
-                max="23"
-                value={inputH}
-                onChange={(e) => handleApplyInputs(parseInt(e.target.value) || 0, inputM, inputS)}
-                className="w-16 h-16 text-center text-3xl font-light bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-900"
-              />
-              <span className="text-xs text-gray-400 mt-1">Hours</span>
+        <div className="py-8 flex justify-center items-center gap-10">
+          {/* Hours Column */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={() => setHours(prevH)}
+              className="text-2xl text-gray-300 font-light hover:text-gray-500 py-1 transition"
+            >
+              {formatDigits(prevH)}
+            </button>
+            <div className="text-4xl sm:text-5xl font-light text-gray-900 py-2 flex items-baseline">
+              <span>{formatDigits(hours)}</span>
+              <span className="text-sm font-normal text-gray-500 ml-0.5">h</span>
             </div>
-            <span className="text-2xl font-bold text-gray-300">:</span>
-            {/* Minutes */}
-            <div className="flex flex-col items-center">
-              <input
-                type="number"
-                min="0"
-                max="59"
-                value={inputM}
-                onChange={(e) => handleApplyInputs(inputH, parseInt(e.target.value) || 0, inputS)}
-                className="w-16 h-16 text-center text-3xl font-light bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-900"
-              />
-              <span className="text-xs text-gray-400 mt-1">Mins</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-300">:</span>
-            {/* Seconds */}
-            <div className="flex flex-col items-center">
-              <input
-                type="number"
-                min="0"
-                max="59"
-                value={inputS}
-                onChange={(e) => handleApplyInputs(inputH, inputM, parseInt(e.target.value) || 0)}
-                className="w-16 h-16 text-center text-3xl font-light bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-900"
-              />
-              <span className="text-xs text-gray-400 mt-1">Secs</span>
-            </div>
+            <button
+              onClick={() => setHours(nextH)}
+              className="text-2xl text-gray-300 font-light hover:text-gray-500 py-1 transition"
+            >
+              {formatDigits(nextH)}
+            </button>
           </div>
 
-          {/* Quick Preset Chips */}
-          <div className="flex items-center justify-center gap-2 mt-4">
-            {[1, 5, 10, 15, 30].map((m) => (
-              <button
-                key={m}
-                onClick={() => handleApplyInputs(0, m, 0)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                  inputH === 0 && inputM === m && inputS === 0
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                }`}
-              >
-                {m}m
-              </button>
-            ))}
+          {/* Minutes Column */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={() => setMinutes(prevM)}
+              className="text-2xl text-gray-300 font-light hover:text-gray-500 py-1 transition"
+            >
+              {formatDigits(prevM)}
+            </button>
+            <div className="text-4xl sm:text-5xl font-light text-gray-900 py-2 flex items-baseline">
+              <span>{formatDigits(minutes)}</span>
+              <span className="text-sm font-normal text-gray-500 ml-0.5">m</span>
+            </div>
+            <button
+              onClick={() => setMinutes(nextM)}
+              className="text-2xl text-gray-300 font-light hover:text-gray-500 py-1 transition"
+            >
+              {formatDigits(nextM)}
+            </button>
+          </div>
+
+          {/* Seconds Column */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={() => setSeconds(prevS)}
+              className="text-2xl text-gray-300 font-light hover:text-gray-500 py-1 transition"
+            >
+              {formatDigits(prevS)}
+            </button>
+            <div className="text-4xl sm:text-5xl font-light text-gray-900 py-2 flex items-baseline">
+              <span>{formatDigits(seconds)}</span>
+              <span className="text-sm font-normal text-gray-500 ml-0.5">s</span>
+            </div>
+            <button
+              onClick={() => setSeconds(nextS)}
+              className="text-2xl text-gray-300 font-light hover:text-gray-500 py-1 transition"
+            >
+              {formatDigits(nextS)}
+            </button>
           </div>
         </div>
       )}
 
-      {/* Control Action Buttons */}
-      <div className="flex items-center justify-center gap-6 mt-8">
+      {/* 2. Preset Tiles Grid (Exact match to Screenshot 2) */}
+      <div className="grid grid-cols-3 gap-3 my-4">
+        {presets.map((p) => {
+          const isCurrent = targetSeconds === p.durationSecs;
+          return (
+            <button
+              key={p.id}
+              onClick={() => handleApplyPreset(p)}
+              className={`p-4 rounded-2xl flex flex-col items-center justify-center text-center transition ${
+                isCurrent
+                  ? 'bg-emerald-50 border border-[#00B074]'
+                  : 'bg-gray-50 hover:bg-gray-100 border border-transparent'
+              }`}
+            >
+              <div className="text-gray-500 mb-1.5">
+                {p.icon === 'meeting' && <Presentation className="w-5 h-5 text-gray-600" />}
+                {p.icon === 'sleep' && <Moon className="w-5 h-5 text-gray-600" />}
+                {p.icon === 'exercise' && <Dumbbell className="w-5 h-5 text-gray-600" />}
+              </div>
+              <span className="text-xs font-semibold text-gray-900">{p.label}</span>
+              <span className="text-[11px] text-gray-400 mt-0.5">{formatHMS(p.durationSecs)}</span>
+            </button>
+          );
+        })}
+
+        {/* Add Preset Card */}
+        <button
+          onClick={() => {
+            const total = hours * 3600 + minutes * 60 + seconds;
+            if (total > 0) {
+              setPresets(prev => [
+                ...prev,
+                { id: `preset-${Date.now()}`, label: 'Custom', durationSecs: total, icon: 'meeting' }
+              ]);
+            }
+          }}
+          className="p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition"
+          title="Save current time as preset"
+        >
+          <Plus className="w-6 h-6 stroke-[1.5]" />
+        </button>
+      </div>
+
+      {/* 3. Bottom Controls (Screenshot 2: Reset button on left, Green Play in center) */}
+      <div className="flex items-center justify-center gap-10 mt-6 relative">
         <button
           onClick={handleReset}
-          className="w-14 h-14 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition active:scale-95"
-          title="Reset"
+          disabled={!isRunning && remainingSeconds === 0 && hours === 0 && minutes === 0 && seconds === 0}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition active:scale-95 ${
+            !isRunning && remainingSeconds === 0 && hours === 0 && minutes === 0 && seconds === 0
+              ? 'text-gray-200 cursor-not-allowed'
+              : 'text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100'
+          }`}
+          title="Reset timer"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
 
         <button
           onClick={isRunning ? handlePause : handleStart}
-          className={`w-18 h-18 rounded-full flex items-center justify-center shadow-lg transition active:scale-95 ${
-            isRunning
-              ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'
-              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30'
-          }`}
-          style={{ width: '72px', height: '72px' }}
+          className="w-14 h-14 rounded-full bg-[#00B074] hover:bg-[#009E67] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center transition active:scale-95"
           title={isRunning ? 'Pause' : 'Start'}
         >
-          {isRunning ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
+          {isRunning ? (
+            <Pause className="w-6 h-6 fill-current" />
+          ) : (
+            <Play className="w-6 h-6 fill-current ml-0.5" />
+          )}
         </button>
       </div>
     </div>

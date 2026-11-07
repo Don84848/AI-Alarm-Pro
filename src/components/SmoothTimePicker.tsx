@@ -73,7 +73,7 @@ export const SmoothTimePicker: React.FC<SmoothTimePickerProps> = ({
     <div className="relative w-full max-w-xs mx-auto py-4 select-none">
       {/* Central Highlight Selection Bar */}
       <div
-        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-12 bg-blue-50/80 border-y border-blue-200/80 rounded-2xl pointer-events-none z-0"
+        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-12 bg-emerald-50/70 border-y border-emerald-200/80 rounded-2xl pointer-events-none z-0"
       />
 
       {/* Top & Bottom Gradient Shadows for 3D Drum Effect */}
@@ -170,7 +170,7 @@ export const SmoothTimePicker: React.FC<SmoothTimePickerProps> = ({
                   onClick={() => scrollToItem(periodRef, idx)}
                   className={`h-12 flex items-center justify-center snap-center cursor-pointer transition-all duration-150 ${
                     isSelected
-                      ? 'text-2xl font-bold text-blue-600 scale-110'
+                      ? 'text-2xl font-bold text-[#00B074] scale-110'
                       : 'text-base font-normal text-gray-400 hover:text-gray-600'
                   }`}
                 >

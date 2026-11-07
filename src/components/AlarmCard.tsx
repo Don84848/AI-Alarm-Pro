@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alarm } from '../types';
 import { DAY_NAMES } from '../utils/timeUtils';
-import { Trash2, Volume2, Check, Sparkles } from 'lucide-react';
+import { Trash2, Volume2, Edit3, Sparkles } from 'lucide-react';
 
 interface AlarmCardProps {
   alarm: Alarm;
@@ -21,7 +21,7 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getDaysSummary = () => {
-    if (!alarm.days || alarm.days.length === 0) return 'Once';
+    if (!alarm.days || alarm.days.length === 0) return 'Once (Tomorrow)';
     if (alarm.days.length === 7) return 'Every day';
     if (alarm.days.length === 5 && !alarm.days.includes(0) && !alarm.days.includes(6)) return 'Weekdays';
     if (alarm.days.length === 2 && alarm.days.includes(0) && alarm.days.includes(6)) return 'Weekends';
@@ -29,127 +29,97 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
   };
 
   return (
-    <div
-      className={`rounded-3xl p-5 transition-all duration-200 select-none border ${
-        alarm.isEnabled
-          ? 'bg-white border-gray-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] text-gray-900'
-          : 'bg-gray-50/70 border-gray-200/50 text-gray-400 shadow-none'
-      }`}
-    >
-      {/* Top Row: Time & Switch */}
+    <div className="py-3 px-1 transition-colors border-b border-gray-100 last:border-none select-none">
+      {/* Main Alarm Row (Exact match to stock screenshot) */}
       <div className="flex items-center justify-between">
         <div
           className="flex-1 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          {/* Big Time Display */}
+          {/* Time & Period */}
           <div className="flex items-baseline">
             <span
-              className={`text-4xl sm:text-5xl tracking-tight font-light ${
-                alarm.isEnabled ? 'text-gray-900' : 'text-gray-400'
+              className={`text-4xl tracking-tight font-light ${
+                alarm.isEnabled ? 'text-gray-900 font-sans' : 'text-gray-400'
               }`}
             >
               {alarm.time}
             </span>
             <span
-              className={`text-base font-medium ml-1.5 ${
-                alarm.isEnabled ? 'text-gray-600' : 'text-gray-400'
+              className={`text-sm font-medium ml-2 ${
+                alarm.isEnabled ? 'text-gray-700' : 'text-gray-400'
               }`}
             >
               {alarm.period}
             </span>
           </div>
 
-          {/* Label & Days */}
-          <div className="flex items-center gap-2 mt-1 text-xs">
-            <span className={`font-medium ${alarm.isEnabled ? 'text-gray-700' : 'text-gray-400'}`}>
-              {alarm.label || 'Alarm'}
-            </span>
-            <span className="text-gray-300">•</span>
-            <span className="text-gray-500 truncate max-w-[160px]">
-              {getDaysSummary()}
-            </span>
+          {/* Subtitle: Days / Label */}
+          <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5">
+            <span>{getDaysSummary()}</span>
+            {alarm.label && alarm.label !== 'Alarm' && (
+              <>
+                <span className="text-gray-300">•</span>
+                <span className="text-gray-600 truncate max-w-[140px]">{alarm.label}</span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Smooth iOS / Stock Switch */}
-        <div className="flex items-center gap-3">
+        {/* Stock Toggle Switch (#00B074 when enabled) */}
+        <div>
           <button
             onClick={() => onToggle(alarm.id)}
             role="switch"
             aria-checked={alarm.isEnabled}
-            className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-none ${
-              alarm.isEnabled ? 'bg-blue-600' : 'bg-gray-200'
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-none ${
+              alarm.isEnabled ? 'bg-[#00B074]' : 'bg-gray-200'
             }`}
           >
             <span
               aria-hidden="true"
-              className={`pointer-events-none flex items-center justify-center h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
-                alarm.isEnabled ? 'translate-x-6' : 'translate-x-0'
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                alarm.isEnabled ? 'translate-x-5' : 'translate-x-0'
               }`}
-            >
-              {alarm.isEnabled && <Check className="w-3.5 h-3.5 text-blue-600 stroke-[3]" />}
-            </span>
+            />
           </button>
         </div>
       </div>
 
-      {/* AI Reasoning Pill */}
+      {/* AI Reasoning pill (if set via smart scheduling) */}
       {alarm.aiReasoning && (
-        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/80 border border-blue-100 text-[11px] text-blue-700 font-medium">
-          <Sparkles className="w-3 h-3 text-blue-600" />
+        <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[11px] text-[#008759] font-medium border border-emerald-100">
+          <Sparkles className="w-3 h-3 text-[#00B074]" />
           <span className="truncate max-w-[280px]">{alarm.aiReasoning}</span>
         </div>
       )}
 
-      {/* Expanded Controls */}
+      {/* Expandable Controls for Details */}
       {isExpanded && (
-        <div className="mt-4 pt-4 border-t border-gray-100 space-y-4 animate-fade-in">
-          {/* Day Circles */}
-          <div className="flex items-center justify-between gap-1">
-            {DAY_NAMES.map((dayName, idx) => {
-              const isActive = alarm.days && alarm.days.includes(idx);
-              return (
-                <button
-                  key={idx}
-                  onClick={() => onEdit(alarm)}
-                  className={`w-8 h-8 rounded-full text-xs font-semibold flex items-center justify-center transition active:scale-95 ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                  }`}
-                >
-                  {dayName[0]}
-                </button>
-              );
-            })}
-          </div>
+        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between animate-fade-in text-xs">
+          <button
+            onClick={() => onPreviewSound(alarm)}
+            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 px-2.5 py-1 rounded-lg bg-gray-50 transition"
+          >
+            <Volume2 className="w-3.5 h-3.5 text-[#00B074]" />
+            <span className="capitalize">{alarm.sound}</span>
+          </button>
 
-          {/* Sound & Actions Bar */}
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => onPreviewSound(alarm)}
-              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition"
+              onClick={() => onEdit(alarm)}
+              className="text-[#00B074] hover:underline font-medium flex items-center gap-1"
             >
-              <Volume2 className="w-3.5 h-3.5 text-blue-600" />
-              <span className="capitalize">{alarm.sound}</span>
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Edit</span>
             </button>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => onEdit(alarm)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold text-blue-600 hover:bg-blue-50 transition"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => onDelete(alarm.id)}
-                className="w-8 h-8 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition"
-                title="Delete alarm"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              onClick={() => onDelete(alarm.id)}
+              className="text-gray-400 hover:text-red-500 transition"
+              title="Delete alarm"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}

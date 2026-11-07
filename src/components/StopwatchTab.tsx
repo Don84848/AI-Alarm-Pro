@@ -57,94 +57,138 @@ export const StopwatchTab: React.FC = () => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     const hundredths = Math.floor((ms % 1000) / 10);
-    return {
-      minutes: minutes.toString().padStart(2, '0'),
-      seconds: seconds.toString().padStart(2, '0'),
-      hundredths: hundredths.toString().padStart(2, '0'),
-    };
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${hundredths.toString().padStart(2, '0')}`;
   };
 
-  const { minutes, seconds, hundredths } = formatDisplay(elapsedMs);
+  // Needle angle (1 full turn per 60 seconds)
+  const needleDeg = ((elapsedMs % 60000) / 60000) * 360;
 
   return (
-    <div className="px-6 py-4 flex flex-col justify-between min-h-[70vh] select-none animate-fade-in">
-      {/* Stopwatch Giant Digital Readout */}
-      <div className="flex flex-col items-center justify-center my-8">
-        <div className="flex items-baseline justify-center">
-          <span className="text-6xl font-light text-gray-900 font-mono tracking-tight">
-            {minutes}:{seconds}
-          </span>
-          <span className="text-3xl font-mono text-blue-600 font-normal ml-2">
-            .{hundredths}
-          </span>
+    <div className="px-6 py-4 flex flex-col justify-between flex-1 select-none animate-fade-in pb-28">
+      {/* 1. Analog Stopwatch Dial (Exact match to Screenshot 4) */}
+      <div className="flex flex-col items-center justify-center pt-2">
+        <div className="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+          <svg className="w-full h-full" viewBox="0 0 200 200">
+            {/* Outer dial */}
+            <circle
+              cx="100"
+              cy="100"
+              r="86"
+              fill="white"
+              stroke="#E5E7EB"
+              strokeWidth="0.8"
+            />
+
+            {/* 60 Minute/Second ticks */}
+            {Array.from({ length: 60 }).map((_, i) => {
+              const isMajor = i % 5 === 0;
+              const angle = (i * 6 * Math.PI) / 180;
+              const r1 = 86;
+              const r2 = isMajor ? 78 : 82;
+              const x1 = 100 + r1 * Math.sin(angle);
+              const y1 = 100 - r1 * Math.cos(angle);
+              const x2 = 100 + r2 * Math.sin(angle);
+              const y2 = 100 - r2 * Math.cos(angle);
+
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke={isMajor ? '#9CA3AF' : '#E5E7EB'}
+                  strokeWidth={isMajor ? '1' : '0.6'}
+                />
+              );
+            })}
+
+            {/* Needle */}
+            <line
+              x1="100"
+              y1="100"
+              x2="100"
+              y2="24"
+              stroke="#4B5563"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              transform={`rotate(${needleDeg} 100 100)`}
+            />
+
+            {/* Center Pivot */}
+            <circle cx="100" cy="100" r="3" fill="#111827" />
+          </svg>
         </div>
-        <div className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-2">
-          Stopwatch
+
+        {/* 2. Big Green Digital Time Display (Screenshot 4: 00:00.00 in #00B074) */}
+        <div className="mt-4">
+          <span className="text-5xl font-light text-[#00B074] font-mono tracking-tight">
+            {formatDisplay(elapsedMs)}
+          </span>
         </div>
       </div>
 
       {/* Lap Table */}
-      <div className="flex-1 max-h-56 overflow-y-auto my-2 border-t border-gray-100">
+      <div className="flex-1 max-h-40 overflow-y-auto my-3 px-2">
         {laps.length > 0 && (
           <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="text-gray-400 border-b border-gray-100 uppercase tracking-wider">
-                <th className="py-2 font-medium">Lap</th>
-                <th className="py-2 font-medium text-right">Split</th>
-                <th className="py-2 font-medium text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {laps.map((lap) => {
-                const splitFmt = formatDisplay(lap.splitMs);
-                const totalFmt = formatDisplay(lap.timeMs);
-                return (
-                  <tr key={lap.number} className="text-gray-700 font-mono">
-                    <td className="py-2.5 font-sans font-semibold text-gray-900">
-                      Lap {lap.number}
-                    </td>
-                    <td className="py-2.5 text-right text-gray-500">
-                      +{splitFmt.minutes}:{splitFmt.seconds}.{splitFmt.hundredths}
-                    </td>
-                    <td className="py-2.5 text-right font-medium text-gray-900">
-                      {totalFmt.minutes}:{totalFmt.seconds}.{totalFmt.hundredths}
-                    </td>
-                  </tr>
-                );
-              })}
+            <tbody className="divide-y divide-gray-100">
+              {laps.map((lap) => (
+                <tr key={lap.number} className="text-gray-700 py-1.5 font-mono">
+                  <td className="py-1.5 font-sans text-gray-500 font-medium">
+                    Lap {lap.number}
+                  </td>
+                  <td className="py-1.5 text-right font-medium text-gray-900">
+                    {formatDisplay(lap.timeMs)}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-8 mt-6">
-        {/* Left button: Lap / Reset */}
+      {/* 3. Bottom Controls (Screenshot 4: Reset on left, Green Play in center, Lap on right) */}
+      <div className="flex items-center justify-center gap-10 mt-auto">
+        {/* Reset button */}
         <button
-          onClick={isRunning ? handleLap : handleReset}
+          onClick={handleReset}
           disabled={!isRunning && elapsedMs === 0}
-          className={`w-14 h-14 rounded-full flex items-center justify-center transition active:scale-95 ${
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition active:scale-95 ${
             !isRunning && elapsedMs === 0
-              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              ? 'text-gray-200 cursor-not-allowed'
+              : 'text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100'
           }`}
-          title={isRunning ? 'Lap' : 'Reset'}
+          title="Reset"
         >
-          {isRunning ? <Flag className="w-5 h-5 text-gray-700" /> : <RotateCcw className="w-5 h-5" />}
+          <RotateCcw className="w-5 h-5" />
         </button>
 
-        {/* Center: Start / Stop button */}
+        {/* Center Green Play / Pause Button */}
         <button
           onClick={isRunning ? handleStop : handleStart}
-          className={`rounded-full flex items-center justify-center shadow-lg transition active:scale-95 text-white ${
-            isRunning
-              ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20'
-              : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/30'
-          }`}
-          style={{ width: '72px', height: '72px' }}
+          className="w-14 h-14 rounded-full bg-[#00B074] hover:bg-[#009E67] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center transition active:scale-95"
           title={isRunning ? 'Stop' : 'Start'}
         >
-          {isRunning ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
+          {isRunning ? (
+            <Pause className="w-6 h-6 fill-current" />
+          ) : (
+            <Play className="w-6 h-6 fill-current ml-0.5" />
+          )}
+        </button>
+
+        {/* Lap button */}
+        <button
+          onClick={handleLap}
+          disabled={!isRunning}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition active:scale-95 ${
+            !isRunning
+              ? 'text-gray-200 cursor-not-allowed'
+              : 'text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100'
+          }`}
+          title="Record lap"
+        >
+          <Flag className="w-5 h-5" />
         </button>
       </div>
     </div>
