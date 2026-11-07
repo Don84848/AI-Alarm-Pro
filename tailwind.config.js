@@ -8,27 +8,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Material You (M3) Dark Theme Palette
+        // Material & Stock Light Theme Palette
         m3: {
-          surface: '#111318',
-          surfaceLow: '#1a1c22',
-          surfaceContainer: '#202228',
-          surfaceHigh: '#272930',
-          surfaceHighest: '#32343c',
-          outline: '#44474f',
-          outlineVariant: '#31333a',
-          primary: '#a8c7fa',
-          onPrimary: '#062e6f',
-          primaryContainer: '#0842a0',
-          onPrimaryContainer: '#d3e3fd',
-          secondary: '#c3c6cf',
-          secondaryContainer: '#3f4753',
-          tertiary: '#c4e7ff',
-          error: '#f2b8b5',
-          onError: '#601410',
-          textPrimary: '#e2e2e9',
-          textSecondary: '#c4c6d0',
-          textTertiary: '#8e9099',
+          surface: '#FFFFFF',
+          surfaceLow: '#F8F9FA',
+          surfaceContainer: '#F1F3F5',
+          surfaceHigh: '#E9ECEF',
+          surfaceHighest: '#DEE2E6',
+          outline: '#CED4DA',
+          outlineVariant: '#E9ECEF',
+          primary: '#2563EB',
+          onPrimary: '#FFFFFF',
+          primaryContainer: '#EFF6FF',
+          onPrimaryContainer: '#1D4ED8',
+          secondary: '#4B5563',
+          secondaryContainer: '#F3F4F6',
+          tertiary: '#0284C7',
+          error: '#DC2626',
+          onError: '#FFFFFF',
+          textPrimary: '#111827',
+          textSecondary: '#4B5563',
+          textTertiary: '#9CA3AF',
         }
       },
       fontFamily: {

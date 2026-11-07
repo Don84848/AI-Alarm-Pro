@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import { audioEngine } from '../utils/audio';
-import { User, Key, Volume2, Moon, Check, X, Shield, ExternalLink } from 'lucide-react';
+import { Key, Volume2, Moon, Check, X, Shield, ExternalLink, Sparkles } from 'lucide-react';
 
 interface ProfileModalProps {
   profile: UserProfile;
@@ -54,58 +54,40 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
-      <div className="w-full max-w-md bg-m3-surfaceContainer border border-m3-outlineVariant/30 rounded-t-4xl sm:rounded-4xl max-h-[92vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-m3-surfaceContainer/95 backdrop-blur-md px-6 py-4 border-b border-m3-outlineVariant/30 flex items-center justify-between z-10">
-          <h3 className="text-xl font-normal text-m3-textPrimary">
-            Settings & AI
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-gray-100 flex items-center justify-between z-10">
+          <h3 className="text-base font-semibold text-gray-900">
+            Settings & Gemini AI
           </h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full text-m3-textSecondary hover:bg-m3-surfaceHigh flex items-center justify-center transition"
+            className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Google Account Profile Card */}
-          <div className="flex items-center gap-4 p-4 rounded-3xl bg-m3-surface border border-m3-outlineVariant/30">
-            <img
-              src={profile.avatar}
-              alt="Avatar"
-              className="w-14 h-14 rounded-full object-cover border border-m3-outlineVariant"
-            />
-            <div className="flex-1">
-              <label className="text-[11px] font-medium text-m3-textTertiary block">Display Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-m3-surfaceContainer border border-m3-outlineVariant/40 rounded-xl px-3 py-1.5 text-sm font-medium text-m3-textPrimary mt-1 focus:outline-none focus:border-m3-primary"
-              />
-            </div>
-          </div>
-
-          {/* Gemini AI API Key (Stored Privately in localStorage) */}
-          <div className="p-4 rounded-3xl bg-m3-surface border border-m3-outlineVariant/30 space-y-3">
+          {/* Gemini AI API Key */}
+          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-medium text-m3-textPrimary">
-                <Key className="w-4 h-4 text-m3-primary" />
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-900">
+                <Key className="w-4 h-4 text-blue-600" />
                 <span>Google Gemini API Key</span>
               </div>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                 apiKey
-                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/40'
-                  : 'bg-m3-surfaceHigh text-m3-textTertiary'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
               }`}>
-                {apiKey ? 'Configured' : 'Offline Engine'}
+                {apiKey ? 'Configured' : 'Required for AI'}
               </span>
             </div>
 
-            <p className="text-[11px] text-m3-textTertiary leading-relaxed">
-              Your API key is stored securely in your browser/device localStorage only. It is never exposed, uploaded, or shared with third parties.
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Your API key is saved solely inside your phone's private storage (localStorage) and is never shared or committed.
             </p>
 
             <div className="relative">
@@ -113,151 +95,134 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 type={showKey ? 'text' : 'password'}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Paste your Gemini API Key here"
-                className="w-full bg-m3-surfaceContainer border border-m3-outlineVariant/40 rounded-xl pl-3 pr-20 py-2.5 text-xs font-mono text-m3-textPrimary focus:outline-none focus:border-m3-primary"
+                placeholder="Paste your Gemini API key (AQ...)"
+                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-mono text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
               <button
                 type="button"
                 onClick={() => setShowKey(!showKey)}
-                className="absolute right-2 top-2 text-[11px] font-medium text-m3-textSecondary hover:text-m3-textPrimary px-2 py-0.5 rounded-lg bg-m3-surface"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-blue-600 hover:text-blue-800"
               >
                 {showKey ? 'Hide' : 'Show'}
               </button>
             </div>
 
-            {/* AI Model Selector */}
+            {/* Model Selection */}
             <div className="pt-2">
-              <label className="text-[11px] font-medium text-m3-textTertiary block mb-1.5">
-                Gemini Model
+              <label className="text-[11px] font-semibold text-gray-600 block mb-2">
+                Active Gemini Model
               </label>
-              <div className="space-y-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 {[
-                  {
-                    id: 'gemini-2.5-flash',
-                    title: 'Gemini 2.5 Flash',
-                    badge: 'Fastest',
-                    desc: 'Under 400ms latency, high quota, ideal for voice and schedule scans.',
-                  },
-                  {
-                    id: 'gemini-flash-latest',
-                    title: 'Gemini Flash Latest',
-                    badge: 'Stable',
-                    desc: 'Standard Google multimodal model.',
-                  },
-                  {
-                    id: 'gemini-pro-latest',
-                    title: 'Gemini Pro Latest',
-                    badge: 'Deep',
-                    desc: 'Deep reasoning for complex schedules.',
-                  },
+                  { id: 'gemini-2.5-flash', label: '2.5 Flash', tag: 'Fastest (Recommended)' },
+                  { id: 'gemini-flash-latest', label: 'Flash Latest', tag: 'High Quota' },
                 ].map((m) => (
                   <button
                     key={m.id}
                     type="button"
                     onClick={() => setSelectedModel(m.id)}
-                    className={`w-full text-left p-3 rounded-2xl border text-xs transition ${
+                    className={`p-2.5 rounded-xl border text-left transition ${
                       selectedModel === m.id
-                        ? 'bg-m3-primaryContainer/30 border-m3-primary/60 text-m3-primary'
-                        : 'bg-m3-surfaceContainer border-m3-outlineVariant/30 text-m3-textTertiary hover:text-m3-textSecondary'
+                        ? 'border-blue-600 bg-blue-50 text-blue-900'
+                        : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <div className="flex items-center justify-between font-medium">
-                      <span>{m.title}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-surfaceHigh text-m3-textSecondary">
-                        {m.badge}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-m3-textTertiary mt-1">{m.desc}</p>
+                    <div className="text-xs font-semibold">{m.label}</div>
+                    <div className="text-[10px] text-gray-500">{m.tag}</div>
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Sound & Volume */}
-          <div className="p-4 rounded-3xl bg-m3-surface border border-m3-outlineVariant/30 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-m3-textPrimary">Alarm volume</span>
-              <span className="text-xs text-m3-primary font-medium">{volume}%</span>
+          {/* Volume Control */}
+          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-2">
+            <div className="flex items-center justify-between text-xs font-semibold text-gray-900">
+              <div className="flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-blue-600" />
+                <span>Alarm Ring Volume</span>
+              </div>
+              <span className="text-blue-600 font-mono">{volume}%</span>
             </div>
 
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min="10"
-                max="100"
-                value={volume}
-                onChange={(e) => handleVolumeChange(parseInt(e.target.value, 10))}
-                className="flex-1 accent-m3-primary cursor-pointer"
-              />
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={volume}
+              onChange={(e) => handleVolumeChange(parseInt(e.target.value, 10))}
+              className="w-full accent-blue-600 cursor-pointer"
+            />
+
+            <div className="flex justify-end pt-1">
               <button
                 type="button"
                 onClick={handleTestVolume}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-m3-surfaceContainer hover:bg-m3-surfaceHigh text-m3-textSecondary"
+                className="text-xs font-semibold text-blue-600 hover:underline"
               >
-                Test
+                Test Sound
               </button>
-            </div>
-
-            <div className="pt-2 border-t border-m3-outlineVariant/30 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-medium text-m3-textPrimary block">Voice greeting</span>
-                <span className="text-[11px] text-m3-textTertiary">Read alarm label upon wake up</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={useSpeech}
-                onChange={(e) => setUseSpeech(e.target.checked)}
-                className="w-4 h-4 rounded accent-m3-primary cursor-pointer"
-              />
             </div>
           </div>
 
-          {/* Bedtime & Sleep Goal */}
-          <div className="p-4 rounded-3xl bg-m3-surface border border-m3-outlineVariant/30 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-m3-textPrimary">Bedtime routine</span>
-              <span className="text-xs text-m3-primary font-medium">{targetSleep}h target</span>
+          {/* Sleep Schedule Goal */}
+          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-gray-900">
+              <Moon className="w-4 h-4 text-blue-600" />
+              <span>Target Bedtime & Sleep Goal</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] text-m3-textTertiary block mb-1">Target bedtime</label>
+                <label className="text-[11px] text-gray-500 block mb-1">Target Bedtime</label>
                 <input
                   type="time"
                   value={bedtime}
                   onChange={(e) => setBedtime(e.target.value)}
-                  className="w-full bg-m3-surfaceContainer border border-m3-outlineVariant/40 rounded-xl px-3 py-2 text-xs text-m3-textPrimary"
+                  className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="text-[11px] text-m3-textTertiary block mb-1">Sleep goal (hours)</label>
+                <label className="text-[11px] text-gray-500 block mb-1">Target Hours</label>
                 <input
                   type="number"
-                  min="5"
+                  min="4"
                   max="12"
                   value={targetSleep}
-                  onChange={(e) => setTargetSleep(parseFloat(e.target.value) || 8)}
-                  className="w-full bg-m3-surfaceContainer border border-m3-outlineVariant/40 rounded-xl px-3 py-2 text-xs text-m3-textPrimary"
+                  onChange={(e) => setTargetSleep(parseInt(e.target.value, 10) || 8)}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
           </div>
+
+          {/* Privacy & Open Source Notice */}
+          <div className="flex items-center gap-2 text-[11px] text-gray-500 px-1">
+            <Shield className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Open Source MIT • 100% Client-Side Privacy</span>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-m3-surfaceContainer/95 backdrop-blur-md px-6 py-4 border-t border-m3-outlineVariant/30 flex items-center justify-end gap-3">
+        {/* Footer Actions */}
+        <div className="p-6 border-t border-gray-100 flex items-center gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-full text-xs font-medium text-m3-textSecondary hover:text-m3-textPrimary"
+            className="flex-1 py-3 rounded-2xl text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2.5 rounded-full text-xs font-medium bg-m3-primary text-m3-onPrimary shadow-md hover:bg-m3-primaryContainer hover:text-white active:scale-95 transition"
+            className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-98 transition flex items-center justify-center gap-1.5"
           >
-            {savedSuccess ? 'Saved' : 'Save'}
+            {savedSuccess ? (
+              <>
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Saved!</span>
+              </>
+            ) : (
+              <span>Save Settings</span>
+            )}
           </button>
         </div>
       </div>

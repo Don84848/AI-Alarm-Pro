@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alarm } from '../types';
 import { DAY_NAMES } from '../utils/timeUtils';
-import { ChevronDown, ChevronUp, Trash2, Volume2, Sparkles, Check } from 'lucide-react';
+import { Trash2, Volume2, Check, Sparkles } from 'lucide-react';
 
 interface AlarmCardProps {
   alarm: Alarm;
@@ -20,7 +20,6 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Active days string (e.g. "Mon, Tue, Wed, Thu, Fri" or "Every day" or "Once")
   const getDaysSummary = () => {
     if (!alarm.days || alarm.days.length === 0) return 'Once';
     if (alarm.days.length === 7) return 'Every day';
@@ -31,10 +30,10 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
 
   return (
     <div
-      className={`rounded-4xl p-5 transition-all duration-200 select-none ${
+      className={`rounded-3xl p-5 transition-all duration-200 select-none border ${
         alarm.isEnabled
-          ? 'bg-m3-surfaceContainer text-m3-textPrimary shadow-sm hover:bg-m3-surfaceHigh'
-          : 'bg-m3-surfaceLow text-m3-textTertiary opacity-70 hover:opacity-90'
+          ? 'bg-white border-gray-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] text-gray-900'
+          : 'bg-gray-50/70 border-gray-200/50 text-gray-400 shadow-none'
       }`}
     >
       {/* Top Row: Time & Switch */}
@@ -43,83 +42,81 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
           className="flex-1 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          {/* Big Google Clock Numerals */}
+          {/* Big Time Display */}
           <div className="flex items-baseline">
             <span
-              className={`text-5xl tracking-tight font-normal ${
-                alarm.isEnabled ? 'text-m3-textPrimary' : 'text-m3-textTertiary'
+              className={`text-4xl sm:text-5xl tracking-tight font-light ${
+                alarm.isEnabled ? 'text-gray-900' : 'text-gray-400'
               }`}
             >
               {alarm.time}
             </span>
             <span
               className={`text-base font-medium ml-1.5 ${
-                alarm.isEnabled ? 'text-m3-textSecondary' : 'text-m3-textTertiary'
+                alarm.isEnabled ? 'text-gray-600' : 'text-gray-400'
               }`}
             >
               {alarm.period}
             </span>
           </div>
 
-          {/* Label & Days Summary */}
+          {/* Label & Days */}
           <div className="flex items-center gap-2 mt-1 text-xs">
-            <span className={alarm.isEnabled ? 'text-m3-textSecondary font-medium' : 'text-m3-textTertiary'}>
+            <span className={`font-medium ${alarm.isEnabled ? 'text-gray-700' : 'text-gray-400'}`}>
               {alarm.label || 'Alarm'}
             </span>
-            <span className="text-m3-textTertiary">•</span>
-            <span className="text-m3-textTertiary truncate max-w-[150px]">
+            <span className="text-gray-300">•</span>
+            <span className="text-gray-500 truncate max-w-[160px]">
               {getDaysSummary()}
             </span>
           </div>
         </div>
 
-        {/* Material 3 Switch */}
+        {/* Smooth iOS / Stock Switch */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => onToggle(alarm.id)}
             role="switch"
             aria-checked={alarm.isEnabled}
             className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-none ${
-              alarm.isEnabled ? 'bg-m3-primary' : 'bg-m3-surfaceHighest border border-m3-outlineVariant'
+              alarm.isEnabled ? 'bg-blue-600' : 'bg-gray-200'
             }`}
           >
             <span
               aria-hidden="true"
-              className={`pointer-events-none flex items-center justify-center h-6 w-6 transform rounded-full shadow-md transition duration-200 ease-in-out ${
-                alarm.isEnabled
-                  ? 'translate-x-6 bg-m3-onPrimary text-m3-primary'
-                  : 'translate-x-0 bg-m3-outline text-transparent'
+              className={`pointer-events-none flex items-center justify-center h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                alarm.isEnabled ? 'translate-x-6' : 'translate-x-0'
               }`}
             >
-              {alarm.isEnabled && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+              {alarm.isEnabled && <Check className="w-3.5 h-3.5 text-blue-600 stroke-[3]" />}
             </span>
           </button>
         </div>
       </div>
 
-      {/* AI Reasoning pill (if set by AI) */}
+      {/* AI Reasoning Pill */}
       {alarm.aiReasoning && (
-        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-m3-surfaceHigh border border-m3-outlineVariant/50 text-[11px] text-m3-primary">
-          <span className="text-[10px]">✦</span>
+        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/80 border border-blue-100 text-[11px] text-blue-700 font-medium">
+          <Sparkles className="w-3 h-3 text-blue-600" />
           <span className="truncate max-w-[280px]">{alarm.aiReasoning}</span>
         </div>
       )}
 
-      {/* Expanded Controls (Google Clock Style Accordion) */}
+      {/* Expanded Controls */}
       {isExpanded && (
-        <div className="mt-4 pt-4 border-t border-m3-outlineVariant/40 space-y-4 animate-fade-in">
+        <div className="mt-4 pt-4 border-t border-gray-100 space-y-4 animate-fade-in">
           {/* Day Circles */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-1">
             {DAY_NAMES.map((dayName, idx) => {
               const isActive = alarm.days && alarm.days.includes(idx);
               return (
                 <button
                   key={idx}
                   onClick={() => onEdit(alarm)}
-                  className={`w-9 h-9 rounded-full text-xs font-medium flex items-center justify-center transition active:scale-95 ${
+                  className={`w-8 h-8 rounded-full text-xs font-semibold flex items-center justify-center transition active:scale-95 ${
                     isActive
-                      ? 'bg-m3-primary text-m3-onPrimary font-bold shadow-sm'
-                      : 'bg-m3-surfaceHigh text-m3-textSecondary hover:bg-m3-surfaceHighest'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                   }`}
                 >
                   {dayName[0]}
@@ -129,25 +126,25 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
           </div>
 
           {/* Sound & Actions Bar */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-1">
             <button
               onClick={() => onPreviewSound(alarm)}
-              className="flex items-center gap-2 text-xs font-medium text-m3-textSecondary hover:text-m3-textPrimary px-3 py-1.5 rounded-full bg-m3-surfaceHigh hover:bg-m3-surfaceHighest transition"
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition"
             >
-              <Volume2 className="w-4 h-4 text-m3-primary" />
+              <Volume2 className="w-3.5 h-3.5 text-blue-600" />
               <span className="capitalize">{alarm.sound}</span>
             </button>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => onEdit(alarm)}
-                className="px-3 py-1.5 rounded-full text-xs font-medium text-m3-textSecondary hover:text-m3-textPrimary hover:bg-m3-surfaceHigh transition"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold text-blue-600 hover:bg-blue-50 transition"
               >
                 Edit
               </button>
               <button
                 onClick={() => onDelete(alarm.id)}
-                className="w-8 h-8 rounded-full text-m3-textTertiary hover:text-m3-error hover:bg-m3-surfaceHigh flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition"
                 title="Delete alarm"
               >
                 <Trash2 className="w-4 h-4" />

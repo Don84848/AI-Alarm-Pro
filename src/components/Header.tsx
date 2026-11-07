@@ -1,57 +1,33 @@
 import React from 'react';
-import { UserProfile, Alarm } from '../types';
-import { getNextAlarmDiff } from '../utils/timeUtils';
-import { Bell, MoreVertical, Sparkles } from 'lucide-react';
+import { UserProfile } from '../types';
+import { Settings, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
+  title?: string;
   profile: UserProfile;
-  alarms: Alarm[];
-  onOpenProfile: () => void;
+  onOpenSettings: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ profile, alarms, onOpenProfile }) => {
-  const { alarm: nextAlarm, diffString } = getNextAlarmDiff(alarms);
-
+export const Header: React.FC<HeaderProps> = ({ title = 'Alarm', profile, onOpenSettings }) => {
   return (
-    <header className="px-6 pt-7 pb-4 select-none">
-      {/* Top Bar: Title & Profile */}
+    <header className="px-6 pt-6 pb-2 bg-transparent select-none">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-medium tracking-tight text-m3-textPrimary">
-            Alarm
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 font-sans">
+            {title}
           </h1>
-          {/* Next Alarm status */}
-          <div className="flex items-center gap-2 mt-1.5 text-xs text-m3-textTertiary">
-            <Bell className="w-3.5 h-3.5 text-m3-primary" />
-            <span>
-              {nextAlarm ? (
-                <>
-                  <span className="text-m3-textSecondary font-medium">{nextAlarm.time} {nextAlarm.period}</span>
-                  <span className="text-m3-textTertiary ml-1">({diffString})</span>
-                </>
-              ) : (
-                'All alarms off'
-              )}
-            </span>
-          </div>
         </div>
 
-        {/* Right: Google Profile Avatar */}
+        {/* Top Right: Small Settings Icon button */}
         <div className="flex items-center gap-2">
           <button
-            onClick={onOpenProfile}
-            className="relative p-0.5 rounded-full hover:ring-2 hover:ring-m3-outline transition-all active:scale-95 group"
-            title="Google Account & Settings"
+            onClick={onOpenSettings}
+            className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 flex items-center justify-center transition active:scale-95 relative"
+            title="App Settings & Gemini Key"
           >
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-10 h-10 rounded-full object-cover border border-m3-outlineVariant"
-            />
+            <Settings className="w-5 h-5" />
             {profile.geminiApiKey && (
-              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-m3-primary flex items-center justify-center text-m3-onPrimary text-[9px] font-bold">
-                ✦
-              </span>
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white"></span>
             )}
           </button>
         </div>

@@ -91,55 +91,55 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
-      <div className="w-full max-w-md bg-m3-surfaceContainer border border-m3-outlineVariant/30 rounded-t-4xl sm:rounded-4xl p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-m3-outlineVariant/30">
+        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
           <div>
-            <h3 className="text-lg font-normal text-m3-textPrimary">Voice Command</h3>
-            <p className="text-xs text-m3-textTertiary">Tell Gemini when to set your alarm</p>
+            <h3 className="text-base font-semibold text-gray-900">Voice Command</h3>
+            <p className="text-xs text-gray-500">Speak your alarm instruction to Gemini</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full text-m3-textSecondary hover:bg-m3-surfaceHigh flex items-center justify-center"
+            className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Central Google Microphone */}
+        {/* Central Microphone */}
         <div className="flex flex-col items-center justify-center py-8">
           <div className="relative">
             {isListening && (
-              <span className="absolute -inset-3 rounded-full bg-m3-primary/20 animate-ping"></span>
+              <span className="absolute -inset-3 rounded-full bg-blue-100 animate-ping"></span>
             )}
 
             <button
               onClick={toggleListening}
               className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md ${
                 isListening
-                  ? 'bg-m3-primary text-m3-onPrimary'
-                  : 'bg-m3-surfaceHigh text-m3-textSecondary hover:bg-m3-surfaceHighest'
+                  ? 'bg-blue-600 text-white shadow-blue-500/30'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               <Mic className="w-8 h-8" />
             </button>
           </div>
 
-          <p className="mt-4 text-xs font-medium text-m3-textSecondary">
+          <p className="mt-4 text-xs font-semibold text-gray-700">
             {isListening ? 'Listening...' : 'Tap microphone to speak'}
           </p>
         </div>
 
         {/* Transcript Box */}
-        <div className="min-h-[72px] bg-m3-surface border border-m3-outlineVariant/40 rounded-3xl p-4 text-sm text-m3-textPrimary flex flex-col justify-between">
-          <p className={transcript ? 'text-m3-textPrimary' : 'text-m3-textTertiary italic text-xs'}>
-            {transcript || 'e.g. "Wake me up at 6:30 AM tomorrow for workout"'}
+        <div className="min-h-[72px] bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm text-gray-900 flex flex-col justify-between">
+          <p className={transcript ? 'text-gray-900 font-medium' : 'text-gray-400 italic text-xs'}>
+            {transcript || 'e.g. "Wake me up tomorrow at 6:30 AM"'}
           </p>
         </div>
 
         {!speechSupported && (
-          <div className="mt-2 text-xs text-m3-error flex items-center gap-1.5">
+          <div className="mt-2 text-xs text-red-600 flex items-center gap-1.5">
             <AlertCircle className="w-3.5 h-3.5" />
             <span>Voice input requires microphone permissions.</span>
           </div>
@@ -147,12 +147,12 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
 
         {/* Examples */}
         <div className="mt-4 space-y-1.5">
-          <div className="text-[11px] font-medium text-m3-textTertiary">Try saying:</div>
+          <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Try saying:</div>
           {EXAMPLES.map((ex, idx) => (
             <button
               key={idx}
               onClick={() => setTranscript(ex)}
-              className="w-full text-left p-2.5 rounded-2xl bg-m3-surface hover:bg-m3-surfaceHigh text-xs text-m3-textSecondary border border-m3-outlineVariant/20 transition truncate"
+              className="w-full text-left p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 border border-gray-200 transition truncate"
             >
               "{ex}"
             </button>
@@ -163,17 +163,17 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
         <div className="mt-6 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-full text-xs font-medium text-m3-textSecondary hover:text-m3-textPrimary"
+            className="px-5 py-2.5 rounded-xl text-xs font-medium text-gray-600 hover:text-gray-900"
           >
             Cancel
           </button>
           <button
             onClick={handleApply}
             disabled={!transcript.trim()}
-            className={`px-6 py-2.5 rounded-full text-xs font-medium transition ${
+            className={`px-6 py-2.5 rounded-xl text-xs font-semibold transition ${
               transcript.trim()
-                ? 'bg-m3-primary text-m3-onPrimary shadow-md hover:bg-m3-primaryContainer hover:text-white active:scale-95'
-                : 'bg-m3-surfaceHigh text-m3-textTertiary cursor-not-allowed'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 active:scale-95'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
           >
             Set Alarm

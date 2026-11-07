@@ -5,14 +5,14 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', Roboto, system-ui, -apple-system, sans-serif;
-    background-color: #111318;
-    color: #e2e2e9;
+    background-color: #F8F9FA;
+    color: #111827;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
 }
 
-/* Custom Material scrollbar */
+/* Custom light scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -23,12 +23,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #31333a;
+  background: #D1D5DB;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #44474f;
+  background: #9CA3AF;
 }
 
 .no-scrollbar::-webkit-scrollbar {

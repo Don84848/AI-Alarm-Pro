@@ -1,7 +1,7 @@
 import { Alarm, UserProfile } from '../types';
 
-const ALARMS_KEY = 'ai_alarms_list_v1';
-const PROFILE_KEY = 'ai_alarms_profile_v1';
+const ALARMS_KEY = 'ai_alarms_list_v2';
+const PROFILE_KEY = 'ai_alarms_profile_v2';
 
 export const DEFAULT_PROFILE: UserProfile = {
   name: 'Personal',
@@ -13,64 +13,23 @@ export const DEFAULT_PROFILE: UserProfile = {
   soundVolume: 85,
   voiceLang: 'en-US',
   useSpeechBriefing: true,
-  themeColor: '#a8c7fa',
+  themeColor: '#2563EB',
 };
 
-export const INITIAL_ALARMS: Alarm[] = [
-  {
-    id: 'alarm-1',
-    time: '06:30',
-    period: 'AM',
-    rawTime24: '06:30',
-    label: 'Morning Workout & Run 🏃‍♂️',
-    days: [1, 2, 3, 4, 5], // Mon - Fri
-    isEnabled: true,
-    sound: 'gentle',
-    snoozeMinutes: 5,
-    isAiGenerated: true,
-    aiReasoning: 'Calculated 30 minutes before sunrise for optimum cardio session',
-    mission: 'math',
-  },
-  {
-    id: 'alarm-2',
-    time: '08:15',
-    period: 'AM',
-    rawTime24: '08:15',
-    label: 'Office Standup Prep 💻',
-    days: [1, 2, 3, 4, 5],
-    isEnabled: true,
-    sound: 'radar',
-    snoozeMinutes: 10,
-    isAiGenerated: false,
-    mission: 'none',
-  },
-  {
-    id: 'alarm-3',
-    time: '05:15',
-    period: 'AM',
-    rawTime24: '05:15',
-    label: 'Fajr Prayer & Meditation 🕌',
-    days: [0, 1, 2, 3, 4, 5, 6],
-    isEnabled: false,
-    sound: 'zen',
-    snoozeMinutes: 5,
-    isAiGenerated: true,
-    aiReasoning: 'Scheduled 20 mins before twilight start',
-    mission: 'quote',
-  }
-];
+// No dummy placeholder alarms — user adds real alarms
+export const INITIAL_ALARMS: Alarm[] = [];
 
 export function loadAlarms(): Alarm[] {
   try {
     const data = localStorage.getItem(ALARMS_KEY);
     if (!data) {
-      saveAlarms(INITIAL_ALARMS);
-      return INITIAL_ALARMS;
+      saveAlarms([]);
+      return [];
     }
     return JSON.parse(data);
   } catch (e) {
     console.error('Error loading alarms', e);
-    return INITIAL_ALARMS;
+    return [];
   }
 }
 

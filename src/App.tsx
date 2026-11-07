@@ -6,21 +6,25 @@ import { processAiAlarmPrompt } from './utils/aiEngine';
 import { audioEngine } from './utils/audio';
 
 import { Header } from './components/Header';
-import { AiChatSheet } from './components/AiChatSheet';
+import { LiveClockHero } from './components/LiveClockHero';
 import { AlarmCard } from './components/AlarmCard';
+import { ClockTab } from './components/ClockTab';
+import { TimerTab } from './components/TimerTab';
+import { StopwatchTab } from './components/StopwatchTab';
+import { AiChatSheet } from './components/AiChatSheet';
 import { AddEditAlarmModal } from './components/AddEditAlarmModal';
 import { AlarmRingingScreen } from './components/AlarmRingingScreen';
 import { ProfileModal } from './components/ProfileModal';
 import { VoiceRecorderModal } from './components/VoiceRecorderModal';
 import { ScheduleUploadModal } from './components/ScheduleUploadModal';
 
-import { Plus, Bell, Clock, Hourglass, Timer as StopwatchIcon } from 'lucide-react';
+import { Plus, Bell, Clock, Hourglass, Timer as StopwatchIcon, Mic, Upload, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [alarms, setAlarms] = useState<Alarm[]>(() => loadAlarms());
   const [profile, setProfile] = useState<UserProfile>(() => loadProfile());
 
-  // Active bottom tab
+  // Active bottom tab: 'alarm' | 'clock' | 'timer' | 'stopwatch'
   const [activeTab, setActiveTab] = useState<'alarm' | 'clock' | 'timer' | 'stopwatch'>('alarm');
 
   // Modals state
@@ -29,6 +33,7 @@ export const App: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [ringingAlarm, setRingingAlarm] = useState<Alarm | null>(null);
 
   // Sync state to LocalStorage
@@ -149,69 +154,167 @@ export const App: React.FC = () => {
     setRingingAlarm(null);
   };
 
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case 'alarm': return 'Alarm';
+      case 'clock': return 'World Clock';
+      case 'timer': return 'Timer';
+      case 'stopwatch': return 'Stopwatch';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-m3-surface text-m3-textPrimary flex justify-center selection:bg-m3-primary selection:text-m3-onPrimary">
-      {/* Mobile container */}
-      <div className="w-full max-w-md min-h-screen flex flex-col bg-m3-surface border-x border-m3-outlineVariant/30 shadow-2xl relative pb-36">
-        {/* Google Clock Header */}
+    <div className="min-h-screen bg-gray-100/60 text-gray-900 flex justify-center selection:bg-blue-600 selection:text-white">
+      {/* Mobile container - Pure White Light Theme */}
+      <div className="w-full max-w-md min-h-screen flex flex-col bg-white border-x border-gray-200/80 shadow-xl relative pb-36">
+        
+        {/* Top Header with Title and Small Settings Gear */}
         <Header
+          title={getTabTitle()}
           profile={profile}
-          alarms={alarms}
-          onOpenProfile={() => setIsProfileModalOpen(true)}
+          onOpenSettings={() => setIsProfileModalOpen(true)}
         />
 
-        {/* Alarm List */}
-        <div className="px-6 pt-3 pb-6 space-y-3.5 flex-1">
-          {alarms.length === 0 ? (
-            <div className="text-center py-16 px-4 rounded-4xl bg-m3-surfaceLow border border-m3-outlineVariant/30 my-4">
-              <div className="w-12 h-12 rounded-full bg-m3-surfaceContainer text-m3-textTertiary flex items-center justify-center mx-auto mb-3">
-                <Bell className="w-6 h-6" />
+        {/* TAB 1: ALARM VIEW */}
+        {activeTab === 'alarm' && (
+          <div className="flex-1 flex flex-col">
+            {/* Live Center Clock in Hero */}
+            <LiveClockHero alarms={alarms} />
+
+            {/* Alarms List */}
+            <div className="px-6 pt-1 pb-16 space-y-3 flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                  Your Alarms ({alarms.length})
+                </span>
               </div>
-              <p className="text-base font-medium text-m3-textPrimary">No alarms</p>
-              <p className="text-xs text-m3-textTertiary mt-1 max-w-xs mx-auto">
-                Ask Gemini below to schedule your routine, or tap the + button to add one manually.
-              </p>
+
+              {alarms.length === 0 ? (
+                <div className="text-center py-12 px-6 rounded-3xl bg-gray-50 border border-dashed border-gray-200 my-2">
+                  <div className="w-12 h-12 rounded-full bg-white shadow-xs text-gray-400 flex items-center justify-center mx-auto mb-3 border border-gray-200">
+                    <Bell className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <p className="text-base font-semibold text-gray-800">No alarms set</p>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                    Tap the round AI button in the center to create smart routines, or tap the + button to set one manually.
+                  </p>
+                </div>
+              ) : (
+                alarms.map(alarm => (
+                  <AlarmCard
+                    key={alarm.id}
+                    alarm={alarm}
+                    onToggle={handleToggleAlarm}
+                    onEdit={(a) => {
+                      setEditingAlarm(a);
+                      setIsAddModalOpen(true);
+                    }}
+                    onDelete={handleDeleteAlarm}
+                    onPreviewSound={(a) => {
+                      audioEngine.playSound(a.sound, 2);
+                    }}
+                  />
+                ))
+              )}
             </div>
-          ) : (
-            alarms.map(alarm => (
-              <AlarmCard
-                key={alarm.id}
-                alarm={alarm}
-                onToggle={handleToggleAlarm}
-                onEdit={(a) => {
-                  setEditingAlarm(a);
+
+            {/* Centered Circular AI Button & Side Action Dock */}
+            <div className="fixed bottom-20 left-0 right-0 max-w-md mx-auto px-8 flex items-center justify-between z-20 pointer-events-none">
+              {/* Left Action: Voice / Upload Quick Button */}
+              <button
+                onClick={() => setIsUploadModalOpen(true)}
+                className="pointer-events-auto w-12 h-12 rounded-full bg-white border border-gray-200/90 text-gray-700 shadow-md flex items-center justify-center hover:bg-gray-50 active:scale-95 transition"
+                title="Upload schedule / timetable image"
+              >
+                <Upload className="w-5 h-5 text-gray-700" />
+              </button>
+
+              {/* Center: The Round Circular AI Button (Gemini Sparkle) */}
+              <button
+                onClick={() => setIsAiChatOpen(true)}
+                className="pointer-events-auto w-16 h-16 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-blue-500/35 flex items-center justify-center hover:scale-105 active:scale-95 transition"
+                title="Ask Gemini AI to set alarm"
+              >
+                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 2C12 7.52 7.52 12 2 12C7.52 12 12 16.48 12 22C12 16.48 16.48 12 22 12C16.48 12 12 7.52 12 2Z"
+                    fill="white"
+                  />
+                </svg>
+              </button>
+
+              {/* Right Action: Plus (+) Manual Time Set Button */}
+              <button
+                onClick={() => {
+                  setEditingAlarm(null);
                   setIsAddModalOpen(true);
                 }}
-                onDelete={handleDeleteAlarm}
-                onPreviewSound={(a) => {
-                  audioEngine.playSound(a.sound, 2);
-                }}
-              />
-            ))
-          )}
-        </div>
+                className="pointer-events-auto w-12 h-12 rounded-full bg-blue-600 text-white shadow-md flex items-center justify-center hover:bg-blue-700 active:scale-95 transition"
+                title="Set alarm manually (smooth scroll wheel)"
+              >
+                <Plus className="w-6 h-6 stroke-[2.5]" />
+              </button>
+            </div>
+          </div>
+        )}
 
-        {/* Google Clock Floating Action Button (FAB) */}
-        <button
-          onClick={() => {
-            setEditingAlarm(null);
-            setIsAddModalOpen(true);
-          }}
-          className="fixed bottom-20 right-6 sm:absolute sm:bottom-20 sm:right-6 w-14 h-14 rounded-2xl bg-m3-primary text-m3-onPrimary flex items-center justify-center shadow-xl hover:scale-105 active:scale-90 transition-transform duration-150 z-20"
-          title="Add alarm manually"
-        >
-          <Plus className="w-7 h-7 stroke-[2.5]" />
-        </button>
+        {/* TAB 2: WORLD CLOCK */}
+        {activeTab === 'clock' && <ClockTab />}
 
-        {/* Gemini AI Chat Docked in Bottom Middle */}
+        {/* TAB 3: TIMER */}
+        {activeTab === 'timer' && <TimerTab />}
+
+        {/* TAB 4: STOPWATCH */}
+        {activeTab === 'stopwatch' && <StopwatchTab />}
+
+        {/* Stock Bottom Navigation Bar (4 Menus: Alarm, Clock, Timer, Stopwatch) */}
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-gray-200 h-16 px-4 flex items-center justify-around z-30 select-none">
+          {[
+            { id: 'alarm', label: 'Alarm', icon: Bell },
+            { id: 'clock', label: 'Clock', icon: Clock },
+            { id: 'timer', label: 'Timer', icon: Hourglass },
+            { id: 'stopwatch', label: 'Stopwatch', icon: StopwatchIcon },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className="flex flex-col items-center gap-1 group transition"
+              >
+                <div
+                  className={`px-4 py-1 rounded-full transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-400 group-hover:text-gray-600'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 stroke-[2]" />
+                </div>
+                <span
+                  className={`text-[11px] transition ${
+                    isSelected ? 'text-blue-600 font-semibold' : 'text-gray-400 font-medium'
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Expandable Gemini AI Conversational Assistant Sheet */}
         <AiChatSheet
           profile={profile}
+          isOpen={isAiChatOpen}
+          onClose={() => setIsAiChatOpen(false)}
           onAddAlarms={handleAddMultipleAlarms}
           onOpenUploadModal={() => setIsUploadModalOpen(true)}
           onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
         />
 
-        {/* Modals */}
+        {/* Manual Add/Edit Alarm Modal (Smooth Finger-Scroll Drum Picker) */}
         {isAddModalOpen && (
           <AddEditAlarmModal
             alarm={editingAlarm}
@@ -223,6 +326,7 @@ export const App: React.FC = () => {
           />
         )}
 
+        {/* Settings Modal (Gemini API Key, Model, Sound Volume) */}
         {isProfileModalOpen && (
           <ProfileModal
             profile={profile}
@@ -231,6 +335,7 @@ export const App: React.FC = () => {
           />
         )}
 
+        {/* Voice Recorder Modal */}
         {isVoiceModalOpen && (
           <VoiceRecorderModal
             profile={profile}
@@ -239,6 +344,7 @@ export const App: React.FC = () => {
           />
         )}
 
+        {/* Schedule Upload Modal */}
         {isUploadModalOpen && (
           <ScheduleUploadModal
             profile={profile}
@@ -247,7 +353,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* Ringing Screen */}
+        {/* Ringing Screen Overlay */}
         {ringingAlarm && (
           <AlarmRingingScreen
             alarm={ringingAlarm}
