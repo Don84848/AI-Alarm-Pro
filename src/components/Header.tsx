@@ -11,7 +11,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ profile, onOpenProfile, onOpenSettings }) => {
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening';
-  const greetingUrdu = currentHour < 12 ? 'صبح بخیر' : currentHour < 17 ? 'دوپہر بخیر' : 'شام بخیر';
 
   return (
     <header className="flex items-center justify-between px-5 pt-6 pb-4">
@@ -31,12 +30,9 @@ export const Header: React.FC<HeaderProps> = ({ profile, onOpenProfile, onOpenSe
           </span>
         </div>
         <div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-              {greeting}
-            </span>
-            <span className="text-xs text-slate-500 font-urdu hidden sm:inline">({greetingUrdu})</span>
-          </div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 block">
+            {greeting}
+          </span>
           <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-1">
             {profile.name}
           </h1>

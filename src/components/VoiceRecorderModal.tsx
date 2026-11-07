@@ -15,7 +15,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [selectedLang, setSelectedLang] = useState<'ur-PK' | 'en-US'>('ur-PK');
+  const [selectedLang, setSelectedLang] = useState<'en-US' | 'ur-PK'>('en-US');
   const [speechSupported, setSpeechSupported] = useState(true);
   const recognitionRef = useRef<any>(null);
 
