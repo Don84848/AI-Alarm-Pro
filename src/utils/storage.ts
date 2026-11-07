@@ -8,7 +8,8 @@ export const DEFAULT_PROFILE: UserProfile = {
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
   bedtime: '23:00',
   targetSleepHours: 8,
-  geminiApiKey: '',
+  geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
+  selectedModel: import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash',
   soundVolume: 85,
   voiceLang: 'en-US',
   useSpeechBriefing: true,
@@ -88,7 +89,13 @@ export function loadProfile(): UserProfile {
       saveProfile(DEFAULT_PROFILE);
       return DEFAULT_PROFILE;
     }
-    return { ...DEFAULT_PROFILE, ...JSON.parse(data) };
+    const parsed = JSON.parse(data);
+    return {
+      ...DEFAULT_PROFILE,
+      ...parsed,
+      geminiApiKey: parsed.geminiApiKey || DEFAULT_PROFILE.geminiApiKey,
+      selectedModel: parsed.selectedModel || DEFAULT_PROFILE.selectedModel,
+    };
   } catch (e) {
     console.error('Error loading profile', e);
     return DEFAULT_PROFILE;

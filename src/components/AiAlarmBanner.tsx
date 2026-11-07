@@ -37,7 +37,7 @@ export const AiAlarmBanner: React.FC<AiAlarmBannerProps> = ({
     setLastReasoning(null);
 
     try {
-      const result = await processAiAlarmPrompt(text, profile.geminiApiKey);
+      const result = await processAiAlarmPrompt(text, profile.geminiApiKey, undefined, profile.selectedModel);
 
       if (result.alarms.length > 0) {
         const createdAlarms: Alarm[] = result.alarms.map((a, idx) => ({

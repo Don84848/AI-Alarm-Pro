@@ -4,14 +4,15 @@ import { formatTime12, formatTime24 } from './timeUtils';
 export async function processAiAlarmPrompt(
   prompt: string,
   apiKey?: string,
-  imagePayload?: { base64: string; mimeType: string }
+  imagePayload?: { base64: string; mimeType: string },
+  modelPreference: string = 'gemini-2.5-flash'
 ): Promise<AiParseResult> {
   const cleanPrompt = prompt.trim();
 
   // If Gemini API Key is provided, use Google Gemini API
   if (apiKey && apiKey.trim().length > 10) {
     try {
-      const geminiResult = await callGeminiApi(cleanPrompt, apiKey.trim(), imagePayload);
+      const geminiResult = await callGeminiApi(cleanPrompt, apiKey.trim(), imagePayload, modelPreference);
       if (geminiResult && geminiResult.alarms.length > 0) {
         return geminiResult;
       }
@@ -318,13 +319,19 @@ function extractTimeFromText(text: string): { hours: number; minutes: number; pe
   return null;
 }
 
-// Call Google Gemini API (Multimodal / JSON Schema)
+// Call Google Gemini API (Multimodal / JSON Schema with Model Fallback)
 async function callGeminiApi(
   prompt: string,
   apiKey: string,
-  imagePayload?: { base64: string; mimeType: string }
+  imagePayload?: { base64: string; mimeType: string },
+  modelPreference: string = 'gemini-2.5-flash'
 ): Promise<AiParseResult | null> {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const modelsToTry = [
+    modelPreference,
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-pro-latest'
+  ].filter((v, i, a) => a.indexOf(v) === i);
 
   const systemInstruction = `You are an elite AI Alarm & Schedule Assistant.
 Your task is to analyze user requests (in English, Urdu, Roman Urdu, or uploaded schedule images) and generate ideal alarms.
@@ -377,20 +384,34 @@ You must return a valid JSON object matching this schema:
     }
   };
 
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
+  let lastError: any = null;
 
-  if (!res.ok) {
-    throw new Error(`Gemini API error: ${res.statusText}`);
+  for (const model of modelsToTry) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        throw new Error(`Model ${model} returned HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      const json = await res.json();
+      const textContent = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textContent) continue;
+
+      const parsed = JSON.parse(textContent) as AiParseResult;
+      return parsed;
+    } catch (err) {
+      lastError = err;
+      console.warn(`Failed with model ${model}, trying next candidate...`, err);
+    }
   }
 
-  const json = await res.json();
-  const textContent = json.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!textContent) return null;
-
-  const parsed = JSON.parse(textContent) as AiParseResult;
-  return parsed;
+  if (lastError) throw lastError;
+  return null;
 }

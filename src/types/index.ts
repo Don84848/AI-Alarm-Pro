@@ -26,6 +26,7 @@ export interface UserProfile {
   bedtime: string;
   targetSleepHours: number;
   geminiApiKey: string;
+  selectedModel?: string;
   soundVolume: number;
   voiceLang: 'ur-PK' | 'en-US';
   useSpeechBriefing: boolean;

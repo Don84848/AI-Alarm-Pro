@@ -16,6 +16,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 }) => {
   const [name, setName] = useState(profile.name);
   const [apiKey, setApiKey] = useState(profile.geminiApiKey || '');
+  const [selectedModel, setSelectedModel] = useState(profile.selectedModel || 'gemini-2.5-flash');
   const [showKey, setShowKey] = useState(false);
   const [volume, setVolume] = useState(profile.soundVolume || 80);
   const [bedtime, setBedtime] = useState(profile.bedtime || '23:00');
@@ -39,6 +40,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       ...profile,
       name: name.trim() || 'User',
       geminiApiKey: apiKey.trim(),
+      selectedModel,
       soundVolume: volume,
       bedtime,
       targetSleepHours: targetSleep,
@@ -155,6 +157,49 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               >
                 {showKey ? 'Hide' : 'Show'}
               </button>
+            </div>
+
+            {/* Model Selection */}
+            <div className="pt-2">
+              <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">
+                AI Model Engine
+              </label>
+              <div className="space-y-1.5">
+                {[
+                  {
+                    id: 'gemini-2.5-flash',
+                    title: '⚡ Gemini 2.5 Flash (Recommended)',
+                    desc: 'Lightning fast response (<400ms), high quota, perfect for voice commands and schedules',
+                  },
+                  {
+                    id: 'gemini-flash-latest',
+                    title: '🚀 Gemini Flash Latest',
+                    desc: 'Latest general multimodal model with smart reasoning',
+                  },
+                  {
+                    id: 'gemini-pro-latest',
+                    title: '🧠 Gemini Pro Latest',
+                    desc: 'Maximum cognitive power for deep reasoning and complex plans',
+                  },
+                ].map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setSelectedModel(m.id)}
+                    className={`w-full text-left p-2.5 rounded-xl border text-xs transition ${
+                      selectedModel === m.id
+                        ? 'bg-violet-950/60 border-violet-500/60 text-white'
+                        : 'bg-dark-850 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="font-semibold text-xs flex items-center justify-between">
+                      <span>{m.title}</span>
+                      {selectedModel === m.id && <Check className="w-3.5 h-3.5 text-violet-400" />}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">{m.desc}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

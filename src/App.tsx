@@ -96,7 +96,7 @@ export const App: React.FC = () => {
   const handleVoiceTranscribed = async (text: string) => {
     setIsVoiceModalOpen(false);
     try {
-      const result = await processAiAlarmPrompt(text, profile.geminiApiKey);
+      const result = await processAiAlarmPrompt(text, profile.geminiApiKey, undefined, profile.selectedModel);
       if (result.alarms.length > 0) {
         const created: Alarm[] = result.alarms.map((a, idx) => ({
           id: `voice-alarm-${Date.now()}-${idx}`,

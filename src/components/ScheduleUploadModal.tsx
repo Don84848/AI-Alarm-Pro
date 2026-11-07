@@ -61,7 +61,7 @@ export const ScheduleUploadModal: React.FC<ScheduleUploadModalProps> = ({
 
     try {
       const payload = selectedFile ? { base64: selectedFile.base64, mimeType: selectedFile.mimeType } : undefined;
-      const result = await processAiAlarmPrompt(textToAnalyze, profile.geminiApiKey, payload);
+      const result = await processAiAlarmPrompt(textToAnalyze, profile.geminiApiKey, payload, profile.selectedModel);
 
       if (result.alarms.length > 0) {
         const generated: Alarm[] = result.alarms.map((a, idx) => ({
