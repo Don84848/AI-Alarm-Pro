@@ -129,13 +129,13 @@ export const ScheduleUploadModal: React.FC<ScheduleUploadModalProps> = ({
           {/* Prompt */}
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">
-              Instructions for Gemini Vision
+              Instructions for Schedule Analysis
             </label>
             <input
               type="text"
               value={schedulePrompt}
               onChange={(e) => setSchedulePrompt(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#00B074]"
             />
           </div>
 
@@ -178,7 +178,7 @@ export const ScheduleUploadModal: React.FC<ScheduleUploadModalProps> = ({
             }`}
           >
             {isAnalyzing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            <span>{isAnalyzing ? 'Analyzing with Gemini...' : 'Analyze & Set Alarms'}</span>
+            <span>{isAnalyzing ? 'Analyzing Schedule...' : 'Analyze & Set Alarms'}</span>
           </button>
         </div>
       </div>

@@ -97,7 +97,7 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-gray-100">
           <div>
             <h3 className="text-base font-semibold text-gray-900">Voice Command</h3>
-            <p className="text-xs text-gray-500">Speak your alarm instruction to Gemini</p>
+            <p className="text-xs text-gray-500">Speak your alarm routine or schedule</p>
           </div>
           <button
             onClick={onClose}

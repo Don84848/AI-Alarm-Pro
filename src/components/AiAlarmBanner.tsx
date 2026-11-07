@@ -74,23 +74,15 @@ export const AiAlarmBanner: React.FC<AiAlarmBannerProps> = ({
 
   return (
     <div className="px-6 py-2 select-none">
-      {/* Google Gemini Pixel Pill Search Bar */}
-      <div className="relative flex items-center bg-m3-surfaceContainer hover:bg-m3-surfaceHigh border border-m3-outlineVariant/50 focus-within:border-m3-primary/70 focus-within:bg-m3-surfaceHigh rounded-full transition-all duration-200 px-4 py-2.5 shadow-sm">
-        {/* Gemini Sparkle Icon */}
+      {/* Smart Assistant Input Pill */}
+      <div className="relative flex items-center bg-gray-50 hover:bg-gray-100/70 border border-gray-200 focus-within:border-[#00B074] focus-within:bg-white rounded-full transition-all duration-200 px-4 py-2.5 shadow-xs">
+        {/* Sparkle Icon */}
         <div className="mr-3 shrink-0 flex items-center justify-center">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
             <path
               d="M12 2C12 7.52 7.52 12 2 12C7.52 12 12 16.48 12 22C12 16.48 16.48 12 22 12C16.48 12 12 7.52 12 2Z"
-              fill="url(#gemini-sparkle-grad)"
+              fill="#00B074"
             />
-            <defs>
-              <linearGradient id="gemini-sparkle-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#4285F4" />
-                <stop offset="0.33" stopColor="#9B72CB" />
-                <stop offset="0.66" stopColor="#D96570" />
-                <stop offset="1" stopColor="#F4B400" />
-              </linearGradient>
-            </defs>
           </svg>
         </div>
 
@@ -100,9 +92,9 @@ export const AiAlarmBanner: React.FC<AiAlarmBannerProps> = ({
           value={promptText}
           onChange={(e) => setPromptText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="Ask Gemini to set alarm..."
+          placeholder="Ask AI to set alarm (e.g. Flight buffer)..."
           disabled={isProcessing}
-          className="w-full bg-transparent text-sm text-m3-textPrimary placeholder:text-m3-textTertiary focus:outline-none"
+          className="w-full bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
         />
 
         {/* Action icons */}

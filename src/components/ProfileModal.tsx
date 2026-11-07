@@ -59,7 +59,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         {/* Header */}
         <div className="sticky top-0 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-gray-100 flex items-center justify-between z-10">
           <h3 className="text-base font-semibold text-gray-900">
-            Settings & Gemini AI
+            Settings & AI Assistant
           </h3>
           <button
             onClick={onClose}
@@ -70,19 +70,19 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Gemini AI API Key */}
+          {/* AI API Key */}
           <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-semibold text-gray-900">
-                <Key className="w-4 h-4 text-blue-600" />
-                <span>Google Gemini API Key</span>
+                <Key className="w-4 h-4 text-[#00B074]" />
+                <span>AI API Key</span>
               </div>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                 apiKey
                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                   : 'bg-amber-50 text-amber-700 border border-amber-200'
               }`}>
-                {apiKey ? 'Configured' : 'Required for AI'}
+                {apiKey ? 'Configured' : 'Optional for AI'}
               </span>
             </div>
 
@@ -95,13 +95,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 type={showKey ? 'text' : 'password'}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Paste your Gemini API key (AQ...)"
-                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-mono text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                placeholder="Paste your API key here..."
+                className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-mono text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00B074]/20 focus:border-[#00B074]"
               />
               <button
                 type="button"
                 onClick={() => setShowKey(!showKey)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-blue-600 hover:text-blue-800"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#00B074] hover:text-[#008759]"
               >
                 {showKey ? 'Hide' : 'Show'}
               </button>
@@ -110,12 +110,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             {/* Model Selection */}
             <div className="pt-2">
               <label className="text-[11px] font-semibold text-gray-600 block mb-2">
-                Active Gemini Model
+                Active AI Model
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'gemini-2.5-flash', label: '2.5 Flash', tag: 'Fastest (Recommended)' },
-                  { id: 'gemini-flash-latest', label: 'Flash Latest', tag: 'High Quota' },
+                  { id: 'gemini-2.5-flash', label: 'Fast Model', tag: 'Fastest (Recommended)' },
+                  { id: 'gemini-flash-latest', label: 'Pro Model', tag: 'High Quota' },
                 ].map((m) => (
                   <button
                     key={m.id}
@@ -123,7 +123,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     onClick={() => setSelectedModel(m.id)}
                     className={`p-2.5 rounded-xl border text-left transition ${
                       selectedModel === m.id
-                        ? 'border-blue-600 bg-blue-50 text-blue-900'
+                        ? 'border-[#00B074] bg-emerald-50 text-emerald-900'
                         : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
