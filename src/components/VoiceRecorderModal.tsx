@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, X, Volume2, Sparkles, Check, AlertCircle } from 'lucide-react';
+import { Mic, X, Check, AlertCircle } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface VoiceRecorderModalProps {
@@ -50,7 +50,6 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
 
     recognitionRef.current = recognition;
 
-    // Start listening automatically on mount
     try {
       recognition.start();
       setIsListening(true);
@@ -85,140 +84,99 @@ export const VoiceRecorderModal: React.FC<VoiceRecorderModalProps> = ({
     }
   };
 
-  const SAMPLE_VOICE_COMMANDS = [
-    { ur: 'صبح 6 بجے جم کے لیے جگاؤ', en: 'Wake me up at 6 AM for gym' },
-    { ur: 'فلائٹ کل رات 10 بجے ہے، ایئرپورٹ بفر کے ساتھ الارم لگاؤ', en: 'Flight at 10 PM, set alarm with airport drive' },
-    { ur: 'فجر نماز سے 25 منٹ پہلے الارم لگاؤ', en: 'Set alarm 25 minutes before Fajr prayer' },
+  const EXAMPLES = [
+    'Wake me up tomorrow at 6:30 AM for morning run',
+    'Flight is at 4:30 AM, calculate 2h airport and 45m drive buffer',
+    'Set a reminder to drink water every 2 hours from 9 AM to 7 PM',
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
-      <div className="w-full max-w-md bg-dark-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-fade-in">
+      <div className="w-full max-w-md bg-m3-surfaceContainer border border-m3-outlineVariant/30 rounded-t-4xl sm:rounded-4xl p-6 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center">
-              <Mic className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">AI Voice Wake Assistant</h3>
-              <p className="text-[11px] text-slate-400">Speak naturally in Urdu or English</p>
-            </div>
+        <div className="flex items-center justify-between pb-3 border-b border-m3-outlineVariant/30">
+          <div>
+            <h3 className="text-lg font-normal text-m3-textPrimary">Voice Command</h3>
+            <p className="text-xs text-m3-textTertiary">Tell Gemini when to set your alarm</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center"
+            className="w-8 h-8 rounded-full text-m3-textSecondary hover:bg-m3-surfaceHigh flex items-center justify-center"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Language selector toggle */}
-        <div className="flex justify-center gap-2 my-4">
-          <button
-            onClick={() => setSelectedLang('ur-PK')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-              selectedLang === 'ur-PK'
-                ? 'bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-md'
-                : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800'
-            }`}
-          >
-            اردو (Urdu)
-          </button>
-          <button
-            onClick={() => setSelectedLang('en-US')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-              selectedLang === 'en-US'
-                ? 'bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-md'
-                : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800'
-            }`}
-          >
-            English (US)
-          </button>
-        </div>
-
-        {/* Central Animated Mic Orb */}
-        <div className="flex flex-col items-center justify-center py-6">
+        {/* Central Google Microphone */}
+        <div className="flex flex-col items-center justify-center py-8">
           <div className="relative">
             {isListening && (
-              <>
-                <span className="absolute -inset-4 rounded-full bg-cyan-500/20 animate-ping"></span>
-                <span className="absolute -inset-8 rounded-full bg-violet-500/10 animate-pulse"></span>
-              </>
+              <span className="absolute -inset-3 rounded-full bg-m3-primary/20 animate-ping"></span>
             )}
 
             <button
               onClick={toggleListening}
-              className={`relative z-10 w-24 h-24 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 active:scale-90 ${
+              className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md ${
                 isListening
-                  ? 'bg-gradient-to-tr from-cyan-500 to-violet-600 text-white shadow-cyan-500/40'
-                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  ? 'bg-m3-primary text-m3-onPrimary'
+                  : 'bg-m3-surfaceHigh text-m3-textSecondary hover:bg-m3-surfaceHighest'
               }`}
             >
-              {isListening ? (
-                <div className="flex items-center gap-1">
-                  <span className="w-1.5 h-8 bg-white rounded-full animate-bounce [animation-delay:0s]"></span>
-                  <span className="w-1.5 h-12 bg-white rounded-full animate-bounce [animation-delay:0.15s]"></span>
-                  <span className="w-1.5 h-6 bg-white rounded-full animate-bounce [animation-delay:0.3s]"></span>
-                </div>
-              ) : (
-                <Mic className="w-10 h-10" />
-              )}
+              <Mic className="w-8 h-8" />
             </button>
           </div>
 
-          <p className="mt-4 text-xs font-medium text-slate-300">
-            {isListening ? 'Listening... Speak your alarm request' : 'Tap microphone to speak'}
+          <p className="mt-4 text-xs font-medium text-m3-textSecondary">
+            {isListening ? 'Listening...' : 'Tap microphone to speak'}
           </p>
         </div>
 
-        {/* Transcription display box */}
-        <div className="min-h-[80px] bg-dark-950/80 border border-slate-800 rounded-2xl p-4 text-sm text-white flex flex-col justify-between">
-          <p className={transcript ? 'text-white' : 'text-slate-500 italic text-xs'}>
-            {transcript || 'e.g., "Kal subah 6 baje gym ke liye utha dena..."'}
+        {/* Transcript Box */}
+        <div className="min-h-[72px] bg-m3-surface border border-m3-outlineVariant/40 rounded-3xl p-4 text-sm text-m3-textPrimary flex flex-col justify-between">
+          <p className={transcript ? 'text-m3-textPrimary' : 'text-m3-textTertiary italic text-xs'}>
+            {transcript || 'e.g. "Wake me up at 6:30 AM tomorrow for workout"'}
           </p>
         </div>
 
         {!speechSupported && (
-          <div className="mt-2 text-[11px] text-amber-400 flex items-center gap-1.5">
+          <div className="mt-2 text-xs text-m3-error flex items-center gap-1.5">
             <AlertCircle className="w-3.5 h-3.5" />
-            <span>Voice recognition requires microphone permissions or Chrome/Edge browser.</span>
+            <span>Voice input requires microphone permissions.</span>
           </div>
         )}
 
-        {/* Quick Voice Prompt Suggestions */}
+        {/* Examples */}
         <div className="mt-4 space-y-1.5">
-          <div className="text-[11px] font-semibold text-slate-400">Quick Examples to Try:</div>
-          {SAMPLE_VOICE_COMMANDS.map((cmd, idx) => (
+          <div className="text-[11px] font-medium text-m3-textTertiary">Try saying:</div>
+          {EXAMPLES.map((ex, idx) => (
             <button
               key={idx}
-              onClick={() => setTranscript(selectedLang === 'ur-PK' ? cmd.ur : cmd.en)}
-              className="w-full text-left p-2 rounded-xl bg-dark-950 hover:bg-slate-800/80 text-xs text-slate-300 border border-slate-850 transition"
+              onClick={() => setTranscript(ex)}
+              className="w-full text-left p-2.5 rounded-2xl bg-m3-surface hover:bg-m3-surfaceHigh text-xs text-m3-textSecondary border border-m3-outlineVariant/20 transition truncate"
             >
-              {selectedLang === 'ur-PK' ? cmd.ur : cmd.en}
+              "{ex}"
             </button>
           ))}
         </div>
 
-        {/* Apply Button */}
-        <div className="mt-6 flex gap-3">
+        {/* Action Buttons */}
+        <div className="mt-6 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 rounded-2xl text-xs font-semibold text-slate-400 bg-dark-950 hover:bg-dark-850 border border-slate-800 transition"
+            className="px-5 py-2.5 rounded-full text-xs font-medium text-m3-textSecondary hover:text-m3-textPrimary"
           >
             Cancel
           </button>
           <button
             onClick={handleApply}
             disabled={!transcript.trim()}
-            className={`flex-1 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+            className={`px-6 py-2.5 rounded-full text-xs font-medium transition ${
               transcript.trim()
-                ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg shadow-cyan-500/20 active:scale-95'
-                : 'bg-dark-800 text-slate-600 cursor-not-allowed'
+                ? 'bg-m3-primary text-m3-onPrimary shadow-md hover:bg-m3-primaryContainer hover:text-white active:scale-95'
+                : 'bg-m3-surfaceHigh text-m3-textTertiary cursor-not-allowed'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Set with AI</span>
+            Set Alarm
           </button>
         </div>
       </div>

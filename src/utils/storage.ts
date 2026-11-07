@@ -4,16 +4,16 @@ const ALARMS_KEY = 'ai_alarms_list_v1';
 const PROFILE_KEY = 'ai_alarms_profile_v1';
 
 export const DEFAULT_PROFILE: UserProfile = {
-  name: 'Awais',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  name: 'Personal',
+  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
   bedtime: '23:00',
   targetSleepHours: 8,
-  geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
-  selectedModel: import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash',
+  geminiApiKey: '',
+  selectedModel: 'gemini-2.5-flash',
   soundVolume: 85,
   voiceLang: 'en-US',
   useSpeechBriefing: true,
-  themeColor: '#06b6d4',
+  themeColor: '#a8c7fa',
 };
 
 export const INITIAL_ALARMS: Alarm[] = [

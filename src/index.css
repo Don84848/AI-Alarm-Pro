@@ -4,31 +4,31 @@
 
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    background-color: #090d16;
-    color: #f1f5f9;
+    font-family: 'Plus Jakarta Sans', Roboto, system-ui, -apple-system, sans-serif;
+    background-color: #111318;
+    color: #e2e2e9;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
 }
 
-/* Custom scrollbar */
+/* Custom Material scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #31333a;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #44474f;
 }
 
 .no-scrollbar::-webkit-scrollbar {

@@ -6,7 +6,6 @@ import { processAiAlarmPrompt } from './utils/aiEngine';
 import { audioEngine } from './utils/audio';
 
 import { Header } from './components/Header';
-import { NextAlarmHero } from './components/NextAlarmHero';
 import { AiAlarmBanner } from './components/AiAlarmBanner';
 import { AlarmCard } from './components/AlarmCard';
 import { AddEditAlarmModal } from './components/AddEditAlarmModal';
@@ -15,11 +14,14 @@ import { ProfileModal } from './components/ProfileModal';
 import { VoiceRecorderModal } from './components/VoiceRecorderModal';
 import { ScheduleUploadModal } from './components/ScheduleUploadModal';
 
-import { Plus, Bell, Sparkles, Filter, Check, Clock } from 'lucide-react';
+import { Plus, Bell, Clock, Hourglass, Timer as StopwatchIcon } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [alarms, setAlarms] = useState<Alarm[]>(() => loadAlarms());
   const [profile, setProfile] = useState<UserProfile>(() => loadProfile());
+
+  // Active bottom tab
+  const [activeTab, setActiveTab] = useState<'alarm' | 'clock' | 'timer' | 'stopwatch'>('alarm');
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -28,9 +30,6 @@ export const App: React.FC = () => {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [ringingAlarm, setRingingAlarm] = useState<Alarm | null>(null);
-
-  // Filter: 'all' | 'ai' | 'active'
-  const [filter, setFilter] = useState<'all' | 'ai' | 'active'>('all');
 
   // Sync state to LocalStorage
   useEffect(() => {
@@ -42,19 +41,17 @@ export const App: React.FC = () => {
     audioEngine.setVolume(profile.soundVolume);
   }, [profile]);
 
-  // Real-time alarm checking loop (every 1 second)
+  // Real-time alarm checking loop
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
       const currentSeconds = now.getSeconds();
 
-      // Only check during the first few seconds of each minute
       if (currentSeconds <= 2 && !ringingAlarm) {
         const timeKey = `${now.toDateString()} ${now.getHours()}:${now.getMinutes()}`;
         
         for (const alarm of alarms) {
           if (alarm.isEnabled && shouldAlarmRingNow(alarm, now) && alarm.lastTriggered !== timeKey) {
-            // Trigger alarm!
             alarm.lastTriggered = timeKey;
             setAlarms([...alarms]);
             setRingingAlarm(alarm);
@@ -96,7 +93,12 @@ export const App: React.FC = () => {
   const handleVoiceTranscribed = async (text: string) => {
     setIsVoiceModalOpen(false);
     try {
-      const result = await processAiAlarmPrompt(text, profile.geminiApiKey, undefined, profile.selectedModel);
+      const result = await processAiAlarmPrompt(
+        text,
+        profile.geminiApiKey,
+        undefined,
+        profile.selectedModel
+      );
       if (result.alarms.length > 0) {
         const created: Alarm[] = result.alarms.map((a, idx) => ({
           id: `voice-alarm-${Date.now()}-${idx}`,
@@ -147,31 +149,18 @@ export const App: React.FC = () => {
     setRingingAlarm(null);
   };
 
-  // Filtered alarms
-  const filteredAlarms = alarms.filter(a => {
-    if (filter === 'ai') return a.isAiGenerated;
-    if (filter === 'active') return a.isEnabled;
-    return true;
-  });
-
   return (
-    <div className="min-h-screen bg-dark-950 text-slate-100 flex justify-center selection:bg-cyan-500 selection:text-white">
-      {/* Mobile container simulation */}
-      <div className="w-full max-w-md min-h-screen flex flex-col bg-dark-950 border-x border-slate-900 shadow-2xl relative pb-24">
-        {/* Top Header */}
+    <div className="min-h-screen bg-m3-surface text-m3-textPrimary flex justify-center selection:bg-m3-primary selection:text-m3-onPrimary">
+      {/* Mobile container */}
+      <div className="w-full max-w-md min-h-screen flex flex-col bg-m3-surface border-x border-m3-outlineVariant/30 shadow-2xl relative pb-28">
+        {/* Google Clock Header */}
         <Header
           profile={profile}
-          onOpenProfile={() => setIsProfileModalOpen(true)}
-          onOpenSettings={() => setIsProfileModalOpen(true)}
-        />
-
-        {/* Next Alarm & Digital Clock Hero */}
-        <NextAlarmHero
           alarms={alarms}
-          onTriggerTestAlarm={(alarm) => setRingingAlarm(alarm)}
+          onOpenProfile={() => setIsProfileModalOpen(true)}
         />
 
-        {/* Centerpiece: AI Alarm Planner */}
+        {/* Pixel Gemini AI Action Bar */}
         <AiAlarmBanner
           profile={profile}
           onAddAlarms={handleAddMultipleAlarms}
@@ -179,67 +168,20 @@ export const App: React.FC = () => {
           onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
         />
 
-        {/* Alarms Header & Filter Bar */}
-        <div className="px-5 pt-5 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-white tracking-wide uppercase">
-              Your Alarms
-            </h3>
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-              {filteredAlarms.length}
-            </span>
-          </div>
-
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1 bg-dark-900 p-1 rounded-xl border border-slate-800">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
-                filter === 'all'
-                  ? 'bg-slate-800 text-cyan-400 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilter('ai')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition flex items-center gap-1 ${
-                filter === 'ai'
-                  ? 'bg-violet-950/80 text-violet-300 border border-violet-800/50 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              <Sparkles className="w-2.5 h-2.5" />
-              <span>AI Only</span>
-            </button>
-            <button
-              onClick={() => setFilter('active')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
-                filter === 'active'
-                  ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/50 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              Active
-            </button>
-          </div>
-        </div>
-
-        {/* Alarms List */}
-        <div className="px-5 py-2 space-y-3 flex-1">
-          {filteredAlarms.length === 0 ? (
-            <div className="text-center py-12 px-4 rounded-3xl bg-dark-900/40 border border-dashed border-slate-800/80 my-4">
-              <div className="w-12 h-12 rounded-2xl bg-slate-800/50 text-slate-500 flex items-center justify-center mx-auto mb-3">
+        {/* Alarm List */}
+        <div className="px-6 pt-3 pb-6 space-y-3.5 flex-1">
+          {alarms.length === 0 ? (
+            <div className="text-center py-16 px-4 rounded-4xl bg-m3-surfaceLow border border-m3-outlineVariant/30 my-4">
+              <div className="w-12 h-12 rounded-full bg-m3-surfaceContainer text-m3-textTertiary flex items-center justify-center mx-auto mb-3">
                 <Bell className="w-6 h-6" />
               </div>
-              <p className="text-sm font-semibold text-slate-300">No alarms found</p>
-              <p className="text-xs text-slate-500 mt-1">
-                Tell the AI above or tap the + button to create a new alarm
+              <p className="text-base font-medium text-m3-textPrimary">No alarms</p>
+              <p className="text-xs text-m3-textTertiary mt-1 max-w-xs mx-auto">
+                Use the search bar above to ask Gemini, or tap the + button below to add one.
               </p>
             </div>
           ) : (
-            filteredAlarms.map(alarm => (
+            alarms.map(alarm => (
               <AlarmCard
                 key={alarm.id}
                 alarm={alarm}
@@ -257,17 +199,54 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* Floating Action Button (FAB) for Manual Add */}
+        {/* Google Clock Floating Action Button (FAB) */}
         <button
           onClick={() => {
             setEditingAlarm(null);
             setIsAddModalOpen(true);
           }}
-          className="fixed bottom-6 right-6 sm:absolute sm:bottom-6 sm:right-6 w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-violet-600 text-white flex items-center justify-center shadow-2xl shadow-cyan-500/40 hover:scale-105 active:scale-90 transition z-40"
-          title="Add New Alarm Manually"
+          className="fixed bottom-24 right-6 sm:absolute sm:bottom-24 sm:right-6 w-14 h-14 rounded-2xl bg-m3-primary text-m3-onPrimary flex items-center justify-center shadow-xl hover:scale-105 active:scale-90 transition-transform duration-150 z-40"
+          title="Add alarm"
         >
-          <Plus className="w-7 h-7" />
+          <Plus className="w-7 h-7 stroke-[2.5]" />
         </button>
+
+        {/* Google Clock Material You Bottom Navigation Bar */}
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-m3-surfaceContainer border-t border-m3-outlineVariant/20 h-20 px-4 flex items-center justify-around z-30 select-none">
+          {[
+            { id: 'alarm', label: 'Alarm', icon: Bell },
+            { id: 'clock', label: 'Clock', icon: Clock },
+            { id: 'timer', label: 'Timer', icon: Hourglass },
+            { id: 'stopwatch', label: 'Stopwatch', icon: StopwatchIcon },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className="flex flex-col items-center gap-1 group transition"
+              >
+                <div
+                  className={`px-5 py-1 rounded-full transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-m3-primaryContainer text-m3-onPrimaryContainer'
+                      : 'text-m3-textTertiary group-hover:text-m3-textSecondary'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+                <span
+                  className={`text-[11px] font-medium transition ${
+                    isSelected ? 'text-m3-textPrimary font-semibold' : 'text-m3-textTertiary'
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
 
         {/* Modals */}
         {isAddModalOpen && (
@@ -305,7 +284,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* Fullscreen Ringing Screen */}
+        {/* Ringing Screen */}
         {ringingAlarm && (
           <AlarmRingingScreen
             alarm={ringingAlarm}

@@ -1,53 +1,60 @@
 import React from 'react';
-import { UserProfile } from '../types';
-import { Settings, Sparkles, Moon, Sun } from 'lucide-react';
+import { UserProfile, Alarm } from '../types';
+import { getNextAlarmDiff } from '../utils/timeUtils';
+import { Bell, MoreVertical, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   profile: UserProfile;
+  alarms: Alarm[];
   onOpenProfile: () => void;
-  onOpenSettings: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ profile, onOpenProfile, onOpenSettings }) => {
-  const currentHour = new Date().getHours();
-  const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening';
+export const Header: React.FC<HeaderProps> = ({ profile, alarms, onOpenProfile }) => {
+  const { alarm: nextAlarm, diffString } = getNextAlarmDiff(alarms);
 
   return (
-    <header className="flex items-center justify-between px-5 pt-6 pb-4">
-      {/* User Profile on the left side */}
-      <button 
-        onClick={onOpenProfile}
-        className="flex items-center gap-3 group text-left transition-all active:scale-95"
-      >
-        <div className="relative">
-          <img
-            src={profile.avatar}
-            alt={profile.name}
-            className="w-12 h-12 rounded-2xl object-cover ring-2 ring-cyan-500/40 p-0.5 bg-dark-900 shadow-lg shadow-cyan-500/10 group-hover:ring-cyan-400 transition"
-          />
-          <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-dark-950 rounded-full flex items-center justify-center">
-            <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></span>
-          </span>
-        </div>
+    <header className="px-6 pt-7 pb-4 select-none">
+      {/* Top Bar: Title & Profile */}
+      <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 block">
-            {greeting}
-          </span>
-          <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-1">
-            {profile.name}
+          <h1 className="text-3xl font-medium tracking-tight text-m3-textPrimary">
+            Alarm
           </h1>
+          {/* Next Alarm status */}
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-m3-textTertiary">
+            <Bell className="w-3.5 h-3.5 text-m3-primary" />
+            <span>
+              {nextAlarm ? (
+                <>
+                  <span className="text-m3-textSecondary font-medium">{nextAlarm.time} {nextAlarm.period}</span>
+                  <span className="text-m3-textTertiary ml-1">({diffString})</span>
+                </>
+              ) : (
+                'All alarms off'
+              )}
+            </span>
+          </div>
         </div>
-      </button>
 
-      {/* Right side controls: Settings / AI status */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onOpenSettings}
-          className="w-10 h-10 rounded-xl bg-dark-850/90 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white hover:border-cyan-500/50 hover:bg-dark-800 transition shadow-sm active:scale-90"
-          title="Settings & Gemini API"
-        >
-          <Settings className="w-5 h-5" />
-        </button>
+        {/* Right: Google Profile Avatar */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenProfile}
+            className="relative p-0.5 rounded-full hover:ring-2 hover:ring-m3-outline transition-all active:scale-95 group"
+            title="Google Account & Settings"
+          >
+            <img
+              src={profile.avatar}
+              alt={profile.name}
+              className="w-10 h-10 rounded-full object-cover border border-m3-outlineVariant"
+            />
+            {profile.geminiApiKey && (
+              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-m3-primary flex items-center justify-center text-m3-onPrimary text-[9px] font-bold">
+                ✦
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );
