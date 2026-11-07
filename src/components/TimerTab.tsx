@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Plus, Presentation, Moon, Dumbbell, Bell } from 'lucide-react';
 import { audioEngine } from '../utils/audio';
+import { UserProfile } from '../types';
 
 interface TimerPreset {
   id: string;
@@ -9,7 +10,11 @@ interface TimerPreset {
   icon: 'meeting' | 'sleep' | 'exercise' | 'custom';
 }
 
-export const TimerTab: React.FC = () => {
+interface TimerTabProps {
+  profile?: UserProfile;
+}
+
+export const TimerTab: React.FC<TimerTabProps> = ({ profile }) => {
   const [targetSeconds, setTargetSeconds] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -34,7 +39,7 @@ export const TimerTab: React.FC = () => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
             setIsRunning(false);
-            audioEngine.playSound('radar', 5);
+            audioEngine.playSound(profile?.timerSound || 'radar', 5);
             return 0;
           }
           return prev - 1;
@@ -46,7 +51,7 @@ export const TimerTab: React.FC = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isRunning]);
+  }, [isRunning, profile]);
 
   const handleStart = () => {
     if (!isRunning && remainingSeconds === 0) {

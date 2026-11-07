@@ -35,12 +35,24 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({
       ? `Good morning ${profile.name}! It is now ${alarm.time} ${alarm.period}. Time for ${alarm.label}.`
       : undefined;
 
-    audioEngine.startAlarmRinging(alarm.sound, briefingText);
+    // Start ringing with gradual volume support
+    audioEngine.startAlarmRinging(alarm.sound, briefingText, profile.graduallyIncreaseVolume);
+
+    // Auto-silence timer (silence after X minutes as configured in Settings)
+    let silenceTimer: any = null;
+    const silenceMins = profile.silenceAfter || 10;
+    if (silenceMins > 0) {
+      silenceTimer = setTimeout(() => {
+        audioEngine.stopAlarmRinging();
+        onDismiss();
+      }, silenceMins * 60 * 1000);
+    }
 
     return () => {
+      if (silenceTimer) clearTimeout(silenceTimer);
       audioEngine.stopAlarmRinging();
     };
-  }, [alarm, profile]);
+  }, [alarm, profile, onDismiss]);
 
   const handleDismissAttempt = () => {
     if (alarm.mission === 'math') {
@@ -58,7 +70,7 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({
 
   const handleSnooze = () => {
     audioEngine.stopAlarmRinging();
-    onSnooze(alarm.snoozeMinutes || 10);
+    onSnooze(alarm.snoozeMinutes || profile.snoozeLength || 10);
   };
 
   const hours12 = (currentTime.getHours() % 12 || 12).toString().padStart(2, '0');

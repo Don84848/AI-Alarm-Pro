@@ -134,7 +134,8 @@ export const App: React.FC = () => {
   const handleSnoozeRinging = (minutes: number) => {
     if (!ringingAlarm) return;
     const now = new Date();
-    now.setMinutes(now.getMinutes() + minutes);
+    const snoozeDuration = minutes || ringingAlarm.snoozeMinutes || profile.snoozeLength || 10;
+    now.setMinutes(now.getMinutes() + snoozeDuration);
     const snoozeH = now.getHours().toString().padStart(2, '0');
     const snoozeM = now.getMinutes().toString().padStart(2, '0');
     const snoozeTime24 = `${snoozeH}:${snoozeM}`;
@@ -225,7 +226,7 @@ export const App: React.FC = () => {
         {activeTab === 'clock' && <ClockTab />}
 
         {/* TAB 3: TIMER VIEW (Exact Match to Screenshot 2) */}
-        {activeTab === 'timer' && <TimerTab />}
+        {activeTab === 'timer' && <TimerTab profile={profile} />}
 
         {/* TAB 4: STOPWATCH VIEW (Exact Match to Screenshot 4) */}
         {activeTab === 'stopwatch' && <StopwatchTab />}
@@ -269,7 +270,10 @@ export const App: React.FC = () => {
         {isSettingsOpen && (
           <SettingsScreen
             profile={profile}
-            onSaveProfile={setProfile}
+            onSaveProfile={(updated) => {
+              setProfile(updated);
+              saveProfile(updated);
+            }}
             onBack={() => setIsSettingsOpen(false)}
           />
         )}
@@ -278,6 +282,7 @@ export const App: React.FC = () => {
         {isAddModalOpen && (
           <AddEditAlarmModal
             alarm={editingAlarm}
+            profile={profile}
             onSave={handleSaveAlarm}
             onClose={() => {
               setIsAddModalOpen(false);

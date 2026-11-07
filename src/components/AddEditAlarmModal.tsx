@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alarm, AlarmSound, MissionType } from '../types';
+import { Alarm, AlarmSound, MissionType, UserProfile } from '../types';
 import { DAY_NAMES, formatTime24 } from '../utils/timeUtils';
 import { audioEngine } from '../utils/audio';
 import { SmoothTimePicker } from './SmoothTimePicker';
@@ -7,6 +7,7 @@ import { Volume2, Check, Sparkles, Mic, Upload } from 'lucide-react';
 
 interface AddEditAlarmModalProps {
   alarm?: Alarm | null;
+  profile?: UserProfile;
   onSave: (alarm: Alarm) => void;
   onClose: () => void;
   onOpenAiChat?: () => void;
@@ -14,6 +15,7 @@ interface AddEditAlarmModalProps {
 
 export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   alarm,
+  profile,
   onSave,
   onClose,
   onOpenAiChat,
@@ -24,8 +26,16 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   const [label, setLabel] = useState(alarm ? alarm.label : '');
   const [days, setDays] = useState<number[]>(alarm?.days || [1, 2, 3, 4, 5]);
   const [sound, setSound] = useState<AlarmSound>(alarm?.sound || 'gentle');
-  const [snoozeMinutes, setSnoozeMinutes] = useState<number>(alarm?.snoozeMinutes || 10);
+  const [snoozeMinutes, setSnoozeMinutes] = useState<number>(
+    alarm?.snoozeMinutes || profile?.snoozeLength || 10
+  );
   const [mission, setMission] = useState<MissionType>(alarm?.mission || 'none');
+
+  const orderedDayIndices = React.useMemo(() => {
+    if (profile?.startWeekOn === 'Monday') return [1, 2, 3, 4, 5, 6, 0];
+    if (profile?.startWeekOn === 'Saturday') return [6, 0, 1, 2, 3, 4, 5];
+    return [0, 1, 2, 3, 4, 5, 6];
+  }, [profile?.startWeekOn]);
 
   const toggleDay = (dayIndex: number) => {
     if (days.includes(dayIndex)) {
@@ -140,20 +150,21 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
               Repeat
             </label>
             <div className="flex items-center justify-between gap-1">
-              {DAY_NAMES.map((d, index) => {
-                const isSelected = days.includes(index);
+              {orderedDayIndices.map((dayIndex) => {
+                const isSelected = days.includes(dayIndex);
+                const dayName = DAY_NAMES[dayIndex];
                 return (
                   <button
-                    key={index}
+                    key={dayIndex}
                     type="button"
-                    onClick={() => toggleDay(index)}
+                    onClick={() => toggleDay(dayIndex)}
                     className={`w-9 h-9 rounded-full text-xs font-semibold flex items-center justify-center transition active:scale-95 ${
                       isSelected
                         ? 'bg-[#00B074] text-white shadow-xs'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    {d[0]}
+                    {dayName[0]}
                   </button>
                 );
               })}

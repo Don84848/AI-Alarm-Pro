@@ -10,10 +10,16 @@ export const DEFAULT_PROFILE: UserProfile = {
   targetSleepHours: 8,
   geminiApiKey: '',
   selectedModel: 'gemini-2.5-flash',
-  soundVolume: 85,
+  soundVolume: 80,
   voiceLang: 'en-US',
   useSpeechBriefing: true,
-  themeColor: '#2563EB',
+  themeColor: '#00B074',
+  silenceAfter: 10,
+  snoozeLength: 10,
+  graduallyIncreaseVolume: false,
+  startWeekOn: 'Sunday',
+  timerSound: 'radar',
+  use24HourFormat: false,
 };
 
 // No dummy placeholder alarms — user adds real alarms

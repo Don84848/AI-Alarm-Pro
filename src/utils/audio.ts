@@ -5,7 +5,9 @@ class SoundEngine {
   private ctx: AudioContext | null = null;
   private isPlaying: boolean = false;
   private intervalId: any = null;
+  private rampIntervalId: any = null;
   private currentVolume: number = 0.8;
+  private activeVolume: number = 0.8;
 
   private getContext(): AudioContext {
     if (!this.ctx) {
@@ -20,6 +22,9 @@ class SoundEngine {
 
   public setVolume(volume0to100: number) {
     this.currentVolume = Math.max(0, Math.min(1, volume0to100 / 100));
+    if (!this.isPlaying) {
+      this.activeVolume = this.currentVolume;
+    }
   }
 
   // Plays a single pattern or tone
@@ -27,7 +32,7 @@ class SoundEngine {
     const ctx = this.getContext();
     const now = ctx.currentTime;
     const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(this.currentVolume, now);
+    masterGain.gain.setValueAtTime(this.activeVolume, now);
     masterGain.connect(ctx.destination);
 
     switch (sound) {
@@ -166,9 +171,25 @@ class SoundEngine {
   }
 
   // Start continuous looping alarm for ringing screen
-  public startAlarmRinging(sound: AlarmSound, briefingText?: string) {
+  public startAlarmRinging(sound: AlarmSound, briefingText?: string, graduallyIncrease: boolean = false) {
     if (this.isPlaying) return;
     this.isPlaying = true;
+
+    if (graduallyIncrease) {
+      // Start at 15% volume and ramp up over 20 seconds
+      this.activeVolume = Math.max(0.08, this.currentVolume * 0.15);
+      const step = (this.currentVolume - this.activeVolume) / 20;
+      this.rampIntervalId = setInterval(() => {
+        if (this.activeVolume < this.currentVolume) {
+          this.activeVolume = Math.min(this.currentVolume, this.activeVolume + step);
+        } else {
+          clearInterval(this.rampIntervalId);
+          this.rampIntervalId = null;
+        }
+      }, 1000);
+    } else {
+      this.activeVolume = this.currentVolume;
+    }
 
     // Immediately play tone
     this.playSound(sound);
@@ -198,6 +219,11 @@ class SoundEngine {
 
   public stopAlarmRinging() {
     this.isPlaying = false;
+    if (this.rampIntervalId) {
+      clearInterval(this.rampIntervalId);
+      this.rampIntervalId = null;
+    }
+    this.activeVolume = this.currentVolume;
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;

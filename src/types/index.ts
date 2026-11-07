@@ -31,6 +31,12 @@ export interface UserProfile {
   voiceLang: 'ur-PK' | 'en-US';
   useSpeechBriefing: boolean;
   themeColor: string;
+  silenceAfter: number; // in minutes (e.g. 5, 10, 15, 20)
+  snoozeLength: number; // in minutes (e.g. 5, 10, 15)
+  graduallyIncreaseVolume: boolean;
+  startWeekOn: 'Sunday' | 'Monday' | 'Saturday';
+  timerSound: AlarmSound;
+  use24HourFormat: boolean;
 }
 
 export interface AiParseResult {
