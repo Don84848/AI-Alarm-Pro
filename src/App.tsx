@@ -6,7 +6,7 @@ import { processAiAlarmPrompt } from './utils/aiEngine';
 import { audioEngine } from './utils/audio';
 
 import { Header } from './components/Header';
-import { AiAlarmBanner } from './components/AiAlarmBanner';
+import { AiChatSheet } from './components/AiChatSheet';
 import { AlarmCard } from './components/AlarmCard';
 import { AddEditAlarmModal } from './components/AddEditAlarmModal';
 import { AlarmRingingScreen } from './components/AlarmRingingScreen';
@@ -152,20 +152,12 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-m3-surface text-m3-textPrimary flex justify-center selection:bg-m3-primary selection:text-m3-onPrimary">
       {/* Mobile container */}
-      <div className="w-full max-w-md min-h-screen flex flex-col bg-m3-surface border-x border-m3-outlineVariant/30 shadow-2xl relative pb-28">
+      <div className="w-full max-w-md min-h-screen flex flex-col bg-m3-surface border-x border-m3-outlineVariant/30 shadow-2xl relative pb-36">
         {/* Google Clock Header */}
         <Header
           profile={profile}
           alarms={alarms}
           onOpenProfile={() => setIsProfileModalOpen(true)}
-        />
-
-        {/* Pixel Gemini AI Action Bar */}
-        <AiAlarmBanner
-          profile={profile}
-          onAddAlarms={handleAddMultipleAlarms}
-          onOpenUploadModal={() => setIsUploadModalOpen(true)}
-          onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
         />
 
         {/* Alarm List */}
@@ -177,7 +169,7 @@ export const App: React.FC = () => {
               </div>
               <p className="text-base font-medium text-m3-textPrimary">No alarms</p>
               <p className="text-xs text-m3-textTertiary mt-1 max-w-xs mx-auto">
-                Use the search bar above to ask Gemini, or tap the + button below to add one.
+                Ask Gemini below to schedule your routine, or tap the + button to add one manually.
               </p>
             </div>
           ) : (
@@ -205,48 +197,19 @@ export const App: React.FC = () => {
             setEditingAlarm(null);
             setIsAddModalOpen(true);
           }}
-          className="fixed bottom-24 right-6 sm:absolute sm:bottom-24 sm:right-6 w-14 h-14 rounded-2xl bg-m3-primary text-m3-onPrimary flex items-center justify-center shadow-xl hover:scale-105 active:scale-90 transition-transform duration-150 z-40"
-          title="Add alarm"
+          className="fixed bottom-20 right-6 sm:absolute sm:bottom-20 sm:right-6 w-14 h-14 rounded-2xl bg-m3-primary text-m3-onPrimary flex items-center justify-center shadow-xl hover:scale-105 active:scale-90 transition-transform duration-150 z-20"
+          title="Add alarm manually"
         >
           <Plus className="w-7 h-7 stroke-[2.5]" />
         </button>
 
-        {/* Google Clock Material You Bottom Navigation Bar */}
-        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-m3-surfaceContainer border-t border-m3-outlineVariant/20 h-20 px-4 flex items-center justify-around z-30 select-none">
-          {[
-            { id: 'alarm', label: 'Alarm', icon: Bell },
-            { id: 'clock', label: 'Clock', icon: Clock },
-            { id: 'timer', label: 'Timer', icon: Hourglass },
-            { id: 'stopwatch', label: 'Stopwatch', icon: StopwatchIcon },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isSelected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className="flex flex-col items-center gap-1 group transition"
-              >
-                <div
-                  className={`px-5 py-1 rounded-full transition-all duration-200 ${
-                    isSelected
-                      ? 'bg-m3-primaryContainer text-m3-onPrimaryContainer'
-                      : 'text-m3-textTertiary group-hover:text-m3-textSecondary'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span
-                  className={`text-[11px] font-medium transition ${
-                    isSelected ? 'text-m3-textPrimary font-semibold' : 'text-m3-textTertiary'
-                  }`}
-                >
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
+        {/* Gemini AI Chat Docked in Bottom Middle */}
+        <AiChatSheet
+          profile={profile}
+          onAddAlarms={handleAddMultipleAlarms}
+          onOpenUploadModal={() => setIsUploadModalOpen(true)}
+          onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+        />
 
         {/* Modals */}
         {isAddModalOpen && (

@@ -46,3 +46,11 @@ export interface AiParseResult {
   explanation: string;
   detectedContext?: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  timestamp: string;
+  createdAlarms?: Alarm[];
+}
