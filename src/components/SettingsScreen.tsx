@@ -222,7 +222,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
                 <Key className="w-3.5 h-3.5 text-[#00B074]" />
-                AI API Key
+                Gemini API Key
               </span>
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
@@ -231,13 +231,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     : 'bg-amber-50 text-amber-700'
                 }`}
               >
-                {profile.geminiApiKey ? 'Saved' : 'Optional for AI'}
+                {profile.geminiApiKey ? 'Saved' : 'Gemini Key Required'}
               </span>
             </div>
 
             <p className="text-[11px] text-gray-500 leading-relaxed">
-              Enables natural language routines (e.g. "Flight at 4:30 AM with buffer") and schedule
-              scanning. Stored strictly in local device storage.
+              Requires Gemini API key. Stored strictly in local device storage.
             </p>
 
             <div className="relative">
@@ -246,7 +245,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 onBlur={() => updateSetting('geminiApiKey', apiKey.trim())}
-                placeholder="Paste your API key here..."
+                placeholder="Enter Gemini API key..."
                 className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#00B074]"
               />
               <button

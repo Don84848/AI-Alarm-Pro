@@ -150,6 +150,12 @@ export const AiChatSheet: React.FC<AiChatSheetProps> = ({
           </button>
         </div>
 
+        {!profile.geminiApiKey && (
+          <div className="px-6 py-2 bg-amber-50 border-b border-amber-100 flex items-center justify-between text-xs text-amber-800">
+            <span>Gemini API key required</span>
+          </div>
+        )}
+
         {/* Messages Feed */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-gray-50/50">
           {messages.map((msg) => (

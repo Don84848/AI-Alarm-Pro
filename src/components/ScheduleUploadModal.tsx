@@ -110,6 +110,12 @@ export const ScheduleUploadModal: React.FC<ScheduleUploadModalProps> = ({
           </button>
         </div>
 
+        {!profile.geminiApiKey && (
+          <div className="mt-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center justify-between">
+            <span>Gemini API key required</span>
+          </div>
+        )}
+
         <div className="py-4 space-y-4">
           {/* File Upload Box */}
           <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl cursor-pointer bg-gray-50 hover:bg-blue-50/40 transition">

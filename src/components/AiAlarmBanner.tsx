@@ -92,7 +92,11 @@ export const AiAlarmBanner: React.FC<AiAlarmBannerProps> = ({
           value={promptText}
           onChange={(e) => setPromptText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="Ask AI to set alarm (e.g. Flight buffer)..."
+          placeholder={
+            profile.geminiApiKey
+              ? "Ask AI to set alarm (e.g. Flight buffer)..."
+              : "Ask AI to set alarm (Gemini API key required)..."
+          }
           disabled={isProcessing}
           className="w-full bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
         />
