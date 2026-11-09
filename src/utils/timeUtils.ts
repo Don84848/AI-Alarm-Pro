@@ -99,16 +99,41 @@ export function getNextAlarmDiff(alarms: Alarm[]): { alarm: Alarm | null; diffSt
 export function shouldAlarmRingNow(alarm: Alarm, currentDate: Date): boolean {
   if (!alarm.isEnabled) return false;
 
-  const currentHours = currentDate.getHours().toString().padStart(2, '0');
-  const currentMins = currentDate.getMinutes().toString().padStart(2, '0');
-  const currentTime24 = `${currentHours}:${currentMins}`;
+  const currentHour = currentDate.getHours();
+  const currentMinute = currentDate.getMinutes();
 
-  if (currentTime24 !== alarm.rawTime24) return false;
+  let alarmHour = -1;
+  let alarmMinute = -1;
+
+  if (alarm.rawTime24 && alarm.rawTime24.includes(':')) {
+    const parts = alarm.rawTime24.split(':').map(v => parseInt(v, 10));
+    alarmHour = parts[0];
+    alarmMinute = parts[1];
+  } else if (alarm.time && alarm.time.includes(':')) {
+    const parts = alarm.time.split(':').map(v => parseInt(v, 10));
+    let h = parts[0];
+    const m = parts[1];
+    if (alarm.period === 'PM' && h < 12) h += 12;
+    if (alarm.period === 'AM' && h === 12) h = 0;
+    alarmHour = h;
+    alarmMinute = m;
+  }
+
+  if (isNaN(alarmHour) || isNaN(alarmMinute) || alarmHour === -1 || alarmMinute === -1) {
+    return false;
+  }
+
+  // Must match current hour and minute
+  if (currentHour !== alarmHour || currentMinute !== alarmMinute) {
+    return false;
+  }
 
   const currentDay = currentDate.getDay();
+  // If repeating on specific days, check if today is included
   if (alarm.days && alarm.days.length > 0) {
     return alarm.days.includes(currentDay);
   }
 
+  // One-time alarm (no repeat days): rings on next occurrence
   return true;
 }

@@ -15,9 +15,26 @@ class SoundEngine {
       this.ctx = new AudioCtx();
     }
     if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().catch(() => {});
     }
     return this.ctx;
+  }
+
+  // Explicit user-gesture unlock for mobile webview and browser autoplay policies
+  public unlockAudio() {
+    try {
+      const ctx = this.getContext();
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+    } catch {
+      // ignore
+    }
   }
 
   public setVolume(volume0to100: number) {
@@ -191,16 +208,13 @@ class SoundEngine {
       this.activeVolume = this.currentVolume;
     }
 
+    // Ensure audio is resumed and hardware is active
+    this.unlockAudio();
+
     // Immediately play tone
     this.playSound(sound);
 
-    // Repeat every 2.4 seconds
-    this.intervalId = setInterval(() => {
-      if (!this.isPlaying) return;
-      this.playSound(sound);
-    }, 2400);
-
-    // Vibrate device if supported
+    // Initial vibration pattern
     if ('vibrate' in navigator) {
       try {
         navigator.vibrate([800, 300, 800, 300, 1200]);
@@ -208,6 +222,19 @@ class SoundEngine {
         // ignore
       }
     }
+
+    // Repeat sound & vibration every 2.4 seconds
+    this.intervalId = setInterval(() => {
+      if (!this.isPlaying) return;
+      this.playSound(sound);
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate([600, 200, 600, 200]);
+        } catch (e) {
+          // ignore
+        }
+      }
+    }, 2400);
 
     // If briefing requested, speak it after brief chime
     if (briefingText && 'speechSynthesis' in window) {

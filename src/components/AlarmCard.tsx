@@ -21,7 +21,13 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getDaysSummary = () => {
-    if (!alarm.days || alarm.days.length === 0) return 'Once (Tomorrow)';
+    if (!alarm.days || alarm.days.length === 0) {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const [h, m] = (alarm.rawTime24 || '00:00').split(':').map(Number);
+      const alarmMinutes = (h || 0) * 60 + (m || 0);
+      return alarmMinutes > currentMinutes ? 'Today' : 'Tomorrow';
+    }
     if (alarm.days.length === 7) return 'Every day';
     if (alarm.days.length === 5 && !alarm.days.includes(0) && !alarm.days.includes(6)) return 'Weekdays';
     if (alarm.days.length === 2 && alarm.days.includes(0) && alarm.days.includes(6)) return 'Weekends';

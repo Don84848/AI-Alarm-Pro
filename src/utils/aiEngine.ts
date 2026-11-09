@@ -326,12 +326,17 @@ async function callGeminiApi(
   imagePayload?: { base64: string; mimeType: string },
   modelPreference: string = 'gemini-2.5-flash'
 ): Promise<AiParseResult | null> {
+  const cleanKey = apiKey.trim().replace(/^["']|["']$/g, '');
+  if (!cleanKey) return null;
+
   const modelsToTry = [
     modelPreference,
     'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
     'gemini-flash-latest',
     'gemini-pro-latest'
-  ].filter((v, i, a) => a.indexOf(v) === i);
+  ].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
 
   const systemInstruction = `You are an elite AI Alarm & Schedule Assistant.
 Your task is to analyze user requests (in English, Urdu, Roman Urdu, or uploaded schedule images) and generate ideal alarms.
@@ -342,11 +347,11 @@ You must return a valid JSON object matching this schema:
   "alarms": [
     {
       "time": "HH:MM",
-      "period": "AM" or "PM",
+      "period": "AM or PM",
       "rawTime24": "HH:MM",
       "label": "Short descriptive title with emoji",
-      "days": [0,1,2,3,4,5,6] (0 is Sun, 6 is Sat, empty array if one-time),
-      "sound": "radar" | "gentle" | "cyber" | "zen" | "rooster" | "briefing",
+      "days": [0,1,2,3,4,5,6],
+      "sound": "radar",
       "reasoning": "Reason why this time was chosen"
     }
   ]
@@ -357,8 +362,8 @@ You must return a valid JSON object matching this schema:
 
   if (imagePayload) {
     parts.push({
-      inline_data: {
-        mime_type: imagePayload.mimeType,
+      inlineData: {
+        mimeType: imagePayload.mimeType || 'image/jpeg',
         data: imagePayload.base64
       }
     });
@@ -388,7 +393,7 @@ You must return a valid JSON object matching this schema:
 
   for (const model of modelsToTry) {
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -397,15 +402,63 @@ You must return a valid JSON object matching this schema:
       });
 
       if (!res.ok) {
+        const errorText = await res.text().catch(() => '');
+        console.warn(`Model ${model} returned HTTP ${res.status}: ${errorText}`);
         throw new Error(`Model ${model} returned HTTP ${res.status}: ${res.statusText}`);
       }
 
       const json = await res.json();
-      const textContent = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      const partsArr = json.candidates?.[0]?.content?.parts || [];
+      const textPart = partsArr.find((p: any) => p.text && !p.thought) || partsArr.find((p: any) => p.text) || partsArr[0];
+      const textContent = textPart?.text;
       if (!textContent) continue;
 
-      const parsed = JSON.parse(textContent) as AiParseResult;
-      return parsed;
+      let cleanJson = textContent.trim();
+      if (cleanJson.startsWith('```')) {
+        cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      }
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(cleanJson);
+      } catch {
+        const start = cleanJson.indexOf('{');
+        const end = cleanJson.lastIndexOf('}');
+        if (start !== -1 && end > start) {
+          parsed = JSON.parse(cleanJson.slice(start, end + 1));
+        } else {
+          continue;
+        }
+      }
+
+      if (parsed && Array.isArray(parsed.alarms)) {
+        parsed.alarms = parsed.alarms.map((a: any, idx: number) => {
+          let raw24 = a.rawTime24;
+          let time12 = a.time;
+          let period: 'AM' | 'PM' = a.period === 'PM' ? 'PM' : 'AM';
+
+          if (!raw24 && time12) {
+            raw24 = formatTime24(time12, period);
+          }
+          if (!time12 && raw24) {
+            const f = formatTime12(raw24);
+            time12 = f.time;
+            period = f.period;
+          }
+
+          return {
+            time: time12 || '07:00',
+            period,
+            rawTime24: raw24 || '07:00',
+            label: a.label || `Alarm ${idx + 1}`,
+            days: Array.isArray(a.days) ? a.days : [],
+            sound: a.sound || 'gentle',
+            reasoning: a.reasoning || parsed.explanation || '',
+          };
+        });
+
+        return parsed as AiParseResult;
+      }
     } catch (err) {
       lastError = err;
       console.warn(`Failed with model ${model}, trying next candidate...`, err);

@@ -46,22 +46,33 @@ export const App: React.FC = () => {
     audioEngine.setVolume(profile.soundVolume);
   }, [profile]);
 
-  // Real-time alarm checking loop
+  // Eagerly unlock audio on first user touch/click
+  useEffect(() => {
+    const handleUnlock = () => {
+      audioEngine.unlockAudio();
+    };
+    window.addEventListener('click', handleUnlock, { once: true, passive: true });
+    window.addEventListener('touchstart', handleUnlock, { once: true, passive: true });
+    return () => {
+      window.removeEventListener('click', handleUnlock);
+      window.removeEventListener('touchstart', handleUnlock);
+    };
+  }, []);
+
+  // Real-time alarm checking loop (runs every second without arbitrary second gating)
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      const currentSeconds = now.getSeconds();
+      if (ringingAlarm) return;
 
-      if (currentSeconds <= 2 && !ringingAlarm) {
-        const timeKey = `${now.toDateString()} ${now.getHours()}:${now.getMinutes()}`;
-        
-        for (const alarm of alarms) {
-          if (alarm.isEnabled && shouldAlarmRingNow(alarm, now) && alarm.lastTriggered !== timeKey) {
-            alarm.lastTriggered = timeKey;
-            setAlarms([...alarms]);
-            setRingingAlarm(alarm);
-            break;
-          }
+      const timeKey = `${now.toDateString()} ${now.getHours()}:${now.getMinutes()}`;
+
+      for (const alarm of alarms) {
+        if (alarm.isEnabled && shouldAlarmRingNow(alarm, now) && alarm.lastTriggered !== timeKey) {
+          alarm.lastTriggered = timeKey;
+          setAlarms([...alarms]);
+          setRingingAlarm(alarm);
+          break;
         }
       }
     }, 1000);
@@ -128,6 +139,11 @@ export const App: React.FC = () => {
   };
 
   const handleDismissRinging = () => {
+    if (ringingAlarm && (!ringingAlarm.days || ringingAlarm.days.length === 0)) {
+      setAlarms(prev =>
+        prev.map(a => (a.id === ringingAlarm.id ? { ...a, isEnabled: false } : a))
+      );
+    }
     setRingingAlarm(null);
   };
 

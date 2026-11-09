@@ -20,11 +20,34 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
   onClose,
   onOpenAiChat,
 }) => {
-  const [hours, setHours] = useState(alarm ? alarm.time.split(':')[0] : '07');
-  const [minutes, setMinutes] = useState(alarm ? alarm.time.split(':')[1] : '00');
-  const [period, setPeriod] = useState<'AM' | 'PM'>(alarm ? alarm.period : 'AM');
+  const initial = React.useMemo(() => {
+    if (alarm) {
+      return {
+        hours: alarm.time.split(':')[0],
+        minutes: alarm.time.split(':')[1],
+        period: alarm.period,
+        days: alarm.days || [],
+      };
+    }
+    const d = new Date();
+    d.setMinutes(d.getMinutes() + 2); // Default to 2 minutes from now for convenient instant testing
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const p: 'AM' | 'PM' = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return {
+      hours: h12.toString().padStart(2, '0'),
+      minutes: m.toString().padStart(2, '0'),
+      period: p,
+      days: [] as number[], // Default to Once so it rings on the very next occurrence
+    };
+  }, [alarm]);
+
+  const [hours, setHours] = useState(initial.hours);
+  const [minutes, setMinutes] = useState(initial.minutes);
+  const [period, setPeriod] = useState<'AM' | 'PM'>(initial.period);
   const [label, setLabel] = useState(alarm ? alarm.label : '');
-  const [days, setDays] = useState<number[]>(alarm?.days || [1, 2, 3, 4, 5]);
+  const [days, setDays] = useState<number[]>(initial.days);
   const [sound, setSound] = useState<AlarmSound>(alarm?.sound || 'gentle');
   const [snoozeMinutes, setSnoozeMinutes] = useState<number>(
     alarm?.snoozeMinutes || profile?.snoozeLength || 10
@@ -146,9 +169,27 @@ export const AddEditAlarmModal: React.FC<AddEditAlarmModalProps> = ({
 
           {/* Repeat Days */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5">
-              Repeat
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Repeat ({days.length === 0 ? 'Once' : days.length === 7 ? 'Every day' : days.length === 5 && !days.includes(0) && !days.includes(6) ? 'Weekdays' : `${days.length} days`})
+              </label>
+              <div className="flex items-center gap-1.5 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setDays([])}
+                  className={`px-2 py-0.5 rounded-md transition ${days.length === 0 ? 'bg-emerald-100 text-[#008759] font-semibold' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  Once
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDays([0, 1, 2, 3, 4, 5, 6])}
+                  className={`px-2 py-0.5 rounded-md transition ${days.length === 7 ? 'bg-emerald-100 text-[#008759] font-semibold' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  Every day
+                </button>
+              </div>
+            </div>
             <div className="flex items-center justify-between gap-1">
               {orderedDayIndices.map((dayIndex) => {
                 const isSelected = days.includes(dayIndex);

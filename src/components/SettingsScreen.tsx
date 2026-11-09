@@ -89,13 +89,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   });
   const timezoneString = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+  const handleBack = () => {
+    if (apiKey.trim() !== (profile.geminiApiKey || '')) {
+      updateSetting('geminiApiKey', apiKey.trim());
+    }
+    onBack();
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col select-none animate-fade-in overflow-y-auto">
       {/* Header (Screenshot 3: Green back arrow + Settings) */}
       <div className="sticky top-0 bg-white/95 backdrop-blur-md px-4 py-4 border-b border-gray-100 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="w-9 h-9 rounded-full flex items-center justify-center text-[#00B074] hover:bg-emerald-50 transition active:scale-95"
           >
             <ArrowLeft className="w-6 h-6 stroke-[2.2]" />
@@ -243,7 +250,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <input
                 type={showKey ? 'text' : 'password'}
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setApiKey(val);
+                  updateSetting('geminiApiKey', val.trim());
+                }}
                 onBlur={() => updateSetting('geminiApiKey', apiKey.trim())}
                 placeholder="Enter Gemini API key..."
                 className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#00B074]"
@@ -257,20 +268,34 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </button>
             </div>
 
-            {/* Test API Key Button */}
-            <div className="flex items-center justify-between pt-1">
-              <button
-                type="button"
-                onClick={handleTestApiKey}
-                disabled={isTestingKey || !apiKey.trim()}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                  apiKey.trim()
-                    ? 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 shadow-xs'
-                    : 'text-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {isTestingKey ? 'Verifying...' : 'Test & Verify Key'}
-              </button>
+            {/* Save & Test Buttons */}
+            <div className="flex items-center justify-between pt-1 gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateSetting('geminiApiKey', apiKey.trim());
+                    setKeyTestStatus('success');
+                    setTimeout(() => setKeyTestStatus(null), 3000);
+                  }}
+                  disabled={!apiKey.trim()}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#00B074] text-white hover:bg-[#008759] transition disabled:opacity-40"
+                >
+                  Save Key
+                </button>
+                <button
+                  type="button"
+                  onClick={handleTestApiKey}
+                  disabled={isTestingKey || !apiKey.trim()}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    apiKey.trim()
+                      ? 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 shadow-xs'
+                      : 'text-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  {isTestingKey ? 'Verifying...' : 'Test Key'}
+                </button>
+              </div>
 
               {keyTestStatus === 'success' && (
                 <span className="text-xs text-[#00B074] font-medium flex items-center gap-1">

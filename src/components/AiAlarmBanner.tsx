@@ -62,6 +62,8 @@ export const AiAlarmBanner: React.FC<AiAlarmBannerProps> = ({
         onAddAlarms(createdAlarms);
         setFeedback(result.explanation || `Set ${createdAlarms.length} alarm(s)`);
         setPromptText('');
+      } else {
+        setFeedback(result.explanation || 'Could not detect alarm times. Try: "Alarm at 7 AM"');
       }
     } catch (e) {
       console.error('Failed to process AI prompt:', e);
