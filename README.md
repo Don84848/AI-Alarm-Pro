@@ -1,46 +1,45 @@
-# Clock App Pro ⏰
+# AI Alarm Pro
 
-An open-source, ad-free smart clock and alarm app for Android and the web. Built to replace bloated, subscription-gated alarm apps with a clean stock aesthetic, smart scheduling, and 100% local privacy.
+An open-source, ad-free smart clock and alarm app for Android and the web. Built with a clean stock interface, intelligent scheduling, and offline privacy.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Download APK](https://img.shields.io/badge/Download-Android%20APK-00B074.svg)](https://github.com/Don84848/AI-Alarm-Pro/releases/latest)
 
 ---
 
-## 📲 Download Android APK
+## Download Android APK
 
-👉 **[Download AI-Alarm-Pro.apk (Latest Release)](https://github.com/Don84848/AI-Alarm-Pro/releases/latest)**
+[Download AI-Alarm-Pro.apk (Latest Release)](https://github.com/Don84848/AI-Alarm-Pro/releases/latest)
 
-*Direct installation: Download the `.apk` on your phone, open it, and tap Install.*
-
----
-
-## ⚡ Why Clock App Pro?
-
-Commercial alarm apps lock basic settings behind subscriptions, force-feed ads when you're half-awake, and spike your morning cortisol with blaring sirens. Clock App Pro solves this:
-
-- ✈️ **Smart Travel Buffers**: Tell it `"Flight at 6:30 AM, calculate 2h airport check-in and 45m drive"`—the app reverse-calculates transit margins and sets alarms automatically.
-- 📸 **Snap & Schedule**: Snap a photo or screenshot of your class timetable, exam datesheet, or shift roster to generate your entire week's alarms in one tap.
-- 🌅 **Gentle Wake-Ups**: Volume ramps up smoothly from 15% to 100% over 20 seconds to wake you without morning heart palpitations or anxiety.
-- 🧠 **Math Mission**: Solve an arithmetic challenge before the sound shuts off to prevent falling back asleep.
-- 🛡️ **Zero Ads, Zero Subscriptions, 100% Private**: No trackers, no recurring paywalls, and all data stays strictly on your device.
+Direct installation: download the APK file on your Android device, open it, and tap Install.
 
 ---
 
-## ✨ Key Features
+## Why AI Alarm Pro
 
-- **Stock Minimalist Interface**: Pure white theme, ticking analog dial, and smooth green toggle switches.
-- **Inertial Drum Time Picker**: Swipe smoothly across Hours, Minutes, and AM/PM with your finger or mouse wheel.
-- **Timer with Presets**: 3-column scroll drum with quick one-tap tiles (Meeting, Sleep, Exercise) and custom timers.
-- **Precision Stopwatch**: Analog needle dial, millisecond digital readout, and lap split recording.
-- **Granular Settings**: Configurable auto-silence, customizable snooze, volume slider with live sound preview, start week on Sunday/Monday, and built-in synthesized ringtones.
+Most commercial alarm apps require subscriptions or show full-screen ads. AI Alarm Pro keeps it simple:
+
+- **Smart Travel Buffers:** Enter event times (like flights or meetings) and commute duration to automatically set early wake-up alarms.
+- **Roster and Schedule Import:** Snap a photo of your schedule or timetable to automatically set your weekly alarms.
+- **Gentle Volume Ramp:** Volume gradually increases from 15% to 100% over 20 seconds.
+- **Math Missions:** Optional arithmetic puzzles before the alarm shuts off.
+- **Offline and Private:** No ads, no telemetry, and all data stays strictly on your device.
 
 ---
 
-## 🚀 Quick Start (Developers)
+## Key Features
+
+- Clean minimalist stock interface
+- Smooth time drum picker for hours, minutes, and AM/PM
+- Timer with quick presets (work, nap, exercise)
+- Millisecond precision stopwatch with lap times
+- Fully customizable snooze, auto-silence, and ringtones
+
+---
+
+## Quick Start for Developers
 
 ```bash
-# Clone and run
 git clone https://github.com/Don84848/AI-Alarm-Pro.git
 cd AI-Alarm-Pro
 npm install
@@ -53,10 +52,10 @@ npm run build
 npx cap sync android
 cd android && ./gradlew assembleDebug
 ```
-*Output APK: `android/app/build/outputs/apk/debug/app-debug.apk`.*
+Output APK is generated in `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 
-## 📄 License
+## License
 
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
