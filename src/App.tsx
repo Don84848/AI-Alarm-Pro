@@ -4,6 +4,7 @@ import { loadAlarms, saveAlarms, loadProfile, saveProfile } from './utils/storag
 import { shouldAlarmRingNow, formatTime12 } from './utils/timeUtils';
 import { processAiAlarmPrompt } from './utils/aiEngine';
 import { audioEngine } from './utils/audio';
+import { initNativeAlarms, syncNativeAlarms } from './utils/nativeAlarm';
 
 import { Header } from './components/Header';
 import { AnalogClockHero } from './components/AnalogClockHero';
@@ -36,9 +37,10 @@ export const App: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [ringingAlarm, setRingingAlarm] = useState<Alarm | null>(null);
 
-  // Sync state to LocalStorage
+  // Sync state to LocalStorage and Android native AlarmManager
   useEffect(() => {
     saveAlarms(alarms);
+    syncNativeAlarms(alarms);
   }, [alarms]);
 
   useEffect(() => {
@@ -46,8 +48,22 @@ export const App: React.FC = () => {
     audioEngine.setVolume(profile.soundVolume);
   }, [profile]);
 
-  // Eagerly unlock audio on first user touch/click
+  // Initialize native alarm actions & eagerly unlock audio on first user touch/click
   useEffect(() => {
+    initNativeAlarms(
+      (alarmId) => {
+        const found = alarms.find((a) => a.id === alarmId);
+        if (found) setRingingAlarm(found);
+      },
+      (alarmId) => {
+        const found = alarms.find((a) => a.id === alarmId);
+        if (found) {
+          setRingingAlarm(found);
+          handleSnoozeRinging(10);
+        }
+      }
+    );
+
     const handleUnlock = () => {
       audioEngine.unlockAudio();
     };
